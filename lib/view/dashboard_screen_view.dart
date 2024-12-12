@@ -5,6 +5,17 @@ class Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Rentify"),
+        backgroundColor: const Color(0xFF8BF979),
+      ),
+      body: const Center(
+        child: Text(
+          "Welcome to the Dashboard!",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
   }
 }

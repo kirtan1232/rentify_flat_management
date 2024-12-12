@@ -136,7 +136,7 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
                   width: 10,
                   height: 10,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -145,7 +145,7 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
                   width: 10,
                   height: 10,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white38,
                     shape: BoxShape.circle,
                   ),
@@ -154,7 +154,7 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
                   width: 10,
                   height: 10,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white38,
                     shape: BoxShape.circle,
                   ),
