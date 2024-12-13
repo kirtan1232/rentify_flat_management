@@ -51,7 +51,7 @@ class FlatListScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Found 99+ Flat",
+              "Found 99+ Flats",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class FlatListScreen extends StatelessWidget {
                 children: [
                   _buildFlatCard(
                     imagePath: 'assets/images/room1.png',
-                    location: 'Flat -Chhauni, Dallu, Swayambhu, Kathmandu',
+                    location: 'Flat - Chhauni, Dallu, Swayambhu, Kathmandu',
                     price: 'Rs.20000/month',
                     description: 'Exclusive Palace Residence Apartment Type 2BHK Fully Furnished.',
                     bedrooms: 2,
@@ -76,11 +76,33 @@ class FlatListScreen extends StatelessWidget {
                     imagePath: 'assets/images/room1.png',
                     location: 'Room - Patan',
                     price: 'Rs.5000/week',
-                    description: '1 BHK fully modern furnished apartment with power back up of 24hr.',
+                    description: '1 BHK fully modern furnished apartment with power backup for 24hr.',
                     bedrooms: 1,
                     bathrooms: 2,
                     floors: 6,
                     furnished: 'Modern Furnished',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildFlatCard(
+                    imagePath: 'assets/images/room1.png',
+                    location: 'Flat - Baneshwor, Kathmandu',
+                    price: 'Rs.25000/month',
+                    description: 'Luxury 3BHK apartment with elevator access and 24/7 security.',
+                    bedrooms: 3,
+                    bathrooms: 3,
+                    floors: 8,
+                    furnished: 'Luxury Furnished',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildFlatCard(
+                    imagePath: 'assets/images/room1.png',
+                    location: 'Room - Thamel, Kathmandu',
+                    price: 'Rs.8000/week',
+                    description: 'Modern studio apartment, ideal for single occupancy, fully furnished.',
+                    bedrooms: 1,
+                    bathrooms: 1,
+                    floors: 4,
+                    furnished: 'Fully Furnished',
                   ),
                 ],
               ),
