@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for TextInputFormatter
 import 'package:rentify_flat_management/view/login_screen_view.dart';
 
 class SignupScreenView extends StatelessWidget {
@@ -61,6 +62,10 @@ class SignupScreenView extends StatelessWidget {
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                  LengthLimitingTextInputFormatter(10), // Max 10 digits
+                ],
                 decoration: InputDecoration(
                   labelText: "Phone Number",
                   border: OutlineInputBorder(
@@ -123,6 +128,13 @@ class SignupScreenView extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("All fields are required."),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    } else if (phoneController.text.length != 10) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Phone number must be exactly 10 digits."),
                           backgroundColor: Colors.red,
                         ),
                       );

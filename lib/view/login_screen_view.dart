@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rentify_flat_management/view/signup_screen_view.dart';
 import 'package:rentify_flat_management/view/dashboard_screen_view.dart';
+import 'package:flutter/services.dart'; // Import for TextInputFormatter
 
 class LoginScreenView extends StatelessWidget {
   const LoginScreenView({super.key});
@@ -47,6 +48,10 @@ class LoginScreenView extends StatelessWidget {
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly, // Allow only digits
+                  LengthLimitingTextInputFormatter(10), // Max 10 digits
+                ],
                 decoration: InputDecoration(
                   labelText: "Phone Number",
                   border: OutlineInputBorder(
@@ -74,23 +79,36 @@ class LoginScreenView extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Perform login validation here
-                    if (phoneController.text.isEmpty ||
-                        passwordController.text.isEmpty) {
+                    String phone = phoneController.text.trim();
+                    String password = passwordController.text;
+
+                    // Validate phone number
+                    if (phone.isEmpty || password.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("Phone number and password are required."),
                           backgroundColor: Colors.red,
                         ),
                       );
-                    } else {
-                      // Navigate to the Dashboard screen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
+                      return;
                     }
+
+                    if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Phone number must be exactly 10 digits."),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Navigate to the Dashboard screen if validation passes
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Dashboard()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4CAF50),
