@@ -63,6 +63,31 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
             },
           ),
 
+          // Skip Button (only on slide 1 and slide 2)
+          if (_currentPage < _onboardingPages.length - 1)
+            Positioned(
+              top: 50,
+              right: 20,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignupScreenView(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Skip',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
           // Bottom Page Indicator and "Get Started" Button on Slide 3
           Positioned(
             bottom: 40,
@@ -94,7 +119,7 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
                 if (_currentPage == _onboardingPages.length - 1)
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const SignupScreenView()),
