@@ -50,7 +50,7 @@ class SignupScreenView extends StatelessWidget {
                     // Signup Image
                     Center(
                       child: Image.asset(
-                        'assets/icons/signup.png', // Replace with your asset path
+                        'assets/images/logo.png', // Replace with your asset path
                         height: 100,
                       ),
                     ),
