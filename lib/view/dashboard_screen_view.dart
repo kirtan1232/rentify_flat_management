@@ -1,8 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:rentify_flat_management/view/search_view.dart'; // Make sure to import your FlatListScreen
+import 'package:rentify_flat_management/view/bar_code_view.dart';
+import 'package:rentify_flat_management/view/notifcation_view.dart';
+import 'package:rentify_flat_management/view/search_view.dart';
+import 'package:rentify_flat_management/view/settings_view.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
+
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  int _selectedIndex = 0; // The selected index for BottomNavigationBar
+  bool isSearchIconClicked =
+      false; // Add this variable to track search icon state
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Handle navigation based on the selected index
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
+        break;
+      case 1:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const FlatListScreen()),
+        );
+        break;
+      case 2:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BarCodeView()),
+        );
+        break;
+      case 3:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const NotifcationView()),
+        );
+        break;
+      case 4:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SettingsView()),
+        );
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,13 +62,23 @@ class Dashboard extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: null,
+        automaticallyImplyLeading: false, // Remove the back button
         actions: [
+          // Search icon with color change functionality
           IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.notifications_none,
-              color: Colors.black,
+            onPressed: () {
+              setState(() {
+                isSearchIconClicked =
+                    !isSearchIconClicked; // Toggle search icon state
+                _selectedIndex =
+                    1; // Update BottomNavigationBar to select the "Search" tab
+              });
+            },
+            icon: Icon(
+              Icons.search,
+              color: isSearchIconClicked
+                  ? Colors.green
+                  : Colors.black, // Change color based on state
             ),
           ),
         ],
@@ -36,14 +98,12 @@ class Dashboard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          // Add your logo here
                           Image.asset(
-                            'assets/images/logo.png', // Replace with your logo path
-                            height: 30, // Adjust the size of the logo
+                            'assets/images/logo.png',
+                            height: 30,
                             width: 30,
                           ),
-                          const SizedBox(
-                              width: 8), // Add some space between logo and text
+                          const SizedBox(width: 8),
                           const Text(
                             "My Dormitory",
                             style: TextStyle(
@@ -103,7 +163,9 @@ class Dashboard extends StatelessWidget {
                       const Spacer(),
                       ElevatedButton(
                         onPressed: () {
-                          // Navigate to Find Room/Flat screen
+                          setState(() {
+                            _selectedIndex = 1; // Set index to "Search"
+                          });
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -128,9 +190,7 @@ class Dashboard extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       OutlinedButton(
-                        onPressed: () {
-                          // Navigate to Enter Owner ID screen
-                        },
+                        onPressed: () {},
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.green),
                           shape: RoundedRectangleBorder(
@@ -158,24 +218,28 @@ class Dashboard extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: "Search",
+            label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: "Home",
+            label: "Search",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: "Scan QR",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: "Notifications",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
+            icon: Icon(Icons.settings),
+            label: "Settings",
           ),
         ],
       ),
