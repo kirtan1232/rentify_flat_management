@@ -1,7 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:rentify_flat_management/view/bar_code_view.dart';
+import 'package:rentify_flat_management/view/dashboard_screen_view.dart';
+import 'package:rentify_flat_management/view/notifcation_view.dart';
+import 'package:rentify_flat_management/view/settings_view.dart';
 
-class FlatListScreen extends StatelessWidget {
+class FlatListScreen extends StatefulWidget {
   const FlatListScreen({super.key});
+
+  @override
+  State<FlatListScreen> createState() => _FlatListScreenState();
+}
+
+class _FlatListScreenState extends State<FlatListScreen> {
+  bool isSearchIconClicked = false;
+  int _selectedIndex = 1; // Initially select Search (index 1)
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Handle navigation based on selected index
+    if (index == 0) {
+      // Navigate to Home (Dashboard)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Dashboard(),
+        ),
+      );
+    } else if (index == 1) {
+      // Stay on Search screen (FlatListScreen)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const FlatListScreen(), // or other search screen
+        ),
+      );
+    } else if (index == 2) {
+      // Navigate to QR Scanner screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const BarCodeView(),
+        ),
+      );
+    } else if (index == 3) {
+      // Navigate to Notifications screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const NotifcationView(),
+        ),
+      );
+    } else if (index == 4) {
+      // Navigate to Settings screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SettingsView(),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,27 +71,30 @@ class FlatListScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context); // Go back to the Dashboard
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-        ),
+        automaticallyImplyLeading: false, // Removes the back button
         title: Container(
           height: 40,
           decoration: BoxDecoration(
             color: Colors.grey[200],
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const TextField(
+          child: TextField(
             decoration: InputDecoration(
               hintText: "Search",
               border: InputBorder.none,
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
-              contentPadding: EdgeInsets.symmetric(vertical: 10),
+              prefixIcon: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isSearchIconClicked = !isSearchIconClicked;
+                    _selectedIndex = 1; // Ensure Search is selected
+                  });
+                },
+                child: Icon(
+                  Icons.search,
+                  color: isSearchIconClicked ? Colors.green : Colors.grey,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
           ),
         ),
@@ -65,7 +130,8 @@ class FlatListScreen extends StatelessWidget {
                     imagePath: 'assets/images/room1.png',
                     location: 'Flat - Chhauni, Dallu, Swayambhu, Kathmandu',
                     price: 'Rs.20000/month',
-                    description: 'Exclusive Palace Residence Apartment Type 2BHK Fully Furnished.',
+                    description:
+                        'Exclusive Palace Residence Apartment Type 2BHK Fully Furnished.',
                     bedrooms: 2,
                     bathrooms: 2,
                     floors: 3,
@@ -76,7 +142,8 @@ class FlatListScreen extends StatelessWidget {
                     imagePath: 'assets/images/room1.png',
                     location: 'Room - Patan',
                     price: 'Rs.5000/week',
-                    description: '1 BHK fully modern furnished apartment with power backup for 24hr.',
+                    description:
+                        '1 BHK fully modern furnished apartment with power backup for 24hr.',
                     bedrooms: 1,
                     bathrooms: 2,
                     floors: 6,
@@ -87,7 +154,8 @@ class FlatListScreen extends StatelessWidget {
                     imagePath: 'assets/images/room1.png',
                     location: 'Flat - Baneshwor, Kathmandu',
                     price: 'Rs.25000/month',
-                    description: 'Luxury 3BHK apartment with elevator access and 24/7 security.',
+                    description:
+                        'Luxury 3BHK apartment with elevator access and 24/7 security.',
                     bedrooms: 3,
                     bathrooms: 3,
                     floors: 8,
@@ -98,7 +166,8 @@ class FlatListScreen extends StatelessWidget {
                     imagePath: 'assets/images/room1.png',
                     location: 'Room - Thamel, Kathmandu',
                     price: 'Rs.8000/week',
-                    description: 'Modern studio apartment, ideal for single occupancy, fully furnished.',
+                    description:
+                        'Modern studio apartment, ideal for single occupancy, fully furnished.',
                     bedrooms: 1,
                     bathrooms: 1,
                     floors: 4,
@@ -109,6 +178,35 @@ class FlatListScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: "Search",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: "Scan QR",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: "Notifications",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: "Settings",
+          ),
+        ],
       ),
     );
   }
