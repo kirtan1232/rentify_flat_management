@@ -75,7 +75,7 @@ class _DashboardState extends State<Dashboard> {
               });
             },
             icon: Icon(
-              Icons.search,
+              Icons.person,
               color: isSearchIconClicked
                   ? Colors.green
                   : Colors.black, // Change color based on state
@@ -96,6 +96,7 @@ class _DashboardState extends State<Dashboard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Row with the logo and title
                       Row(
                         children: [
                           Image.asset(
@@ -115,15 +116,49 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        "You haven’t rented yet",
+                        "Flats Available",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Row with 3 images, each taking equal space
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Image.asset(
+                              'assets/images/room1.png',
+                              height: 100, // Adjusted height
+                              width: double.infinity, // Fill space
+                              fit:
+                                  BoxFit.cover, // Make sure it covers the space
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Image.asset(
+                              'assets/images/room2.png',
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Image.asset(
+                              'assets/images/room3.png',
+                              height: 100,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
                       const Text(
-                        "Let’s go, enter the code from the dormitory owner to activate this page! Try a modern way of dormitory with the following benefits.",
+                        "Let’s go, enter the code from the dormitory owner to directly access to their flat. Try a modern way of dormitory with the following benefits.",
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                       const SizedBox(height: 24),
