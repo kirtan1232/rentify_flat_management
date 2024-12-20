@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rentify_flat_management/core/app_theme/app_theme.dart';
-import 'package:rentify_flat_management/view/splash_screen_view.dart';
+import 'package:rentify_flat_management/view/dashboard_screen_view.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SplashScreenView(),
+      home: const Dashboard(),
       theme: getApplicationTheme(),
     );
   }
