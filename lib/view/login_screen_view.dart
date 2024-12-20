@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:rentify_flat_management/view/signup_screen_view.dart';
 import 'package:rentify_flat_management/view/dashboard_screen_view.dart';
+import 'package:rentify_flat_management/view/signup_screen_view.dart';
 
 class LoginScreenView extends StatelessWidget {
   const LoginScreenView({super.key});
@@ -18,7 +17,8 @@ class LoginScreenView extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'), // Your background image
+                image: AssetImage(
+                    'assets/images/background.jpg'), // Your background image
                 fit: BoxFit.cover,
               ),
             ),
@@ -72,7 +72,8 @@ class LoginScreenView extends StatelessWidget {
                           controller: emailController,
                           decoration: InputDecoration(
                             labelText: "Email",
-                            prefixIcon: const Icon(Icons.email, color: Colors.green),
+                            prefixIcon:
+                                const Icon(Icons.email, color: Colors.green),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -86,7 +87,8 @@ class LoginScreenView extends StatelessWidget {
                           obscureText: true,
                           decoration: InputDecoration(
                             labelText: "Password",
-                            prefixIcon: const Icon(Icons.lock, color: Colors.green),
+                            prefixIcon:
+                                const Icon(Icons.lock, color: Colors.green),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -108,7 +110,8 @@ class LoginScreenView extends StatelessWidget {
                               if (email.isEmpty || password.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Email and password are required."),
+                                    content: Text(
+                                        "Email and password are required."),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -146,7 +149,8 @@ class LoginScreenView extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Expanded(
-                              child: Divider(color: Colors.black26, thickness: 1),
+                              child:
+                                  Divider(color: Colors.black26, thickness: 1),
                             ),
                             SizedBox(width: 10),
                             Text(
@@ -155,7 +159,8 @@ class LoginScreenView extends StatelessWidget {
                             ),
                             SizedBox(width: 10),
                             Expanded(
-                              child: Divider(color: Colors.black26, thickness: 1),
+                              child:
+                                  Divider(color: Colors.black26, thickness: 1),
                             ),
                           ],
                         ),
