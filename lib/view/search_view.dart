@@ -139,7 +139,7 @@ class _FlatListScreenState extends State<FlatListScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildFlatCard(
-                    imagePath: 'assets/images/room1.png',
+                    imagePath: 'assets/images/room3.png',
                     location: 'Room - Patan',
                     price: 'Rs.5000/week',
                     description:
@@ -151,7 +151,7 @@ class _FlatListScreenState extends State<FlatListScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildFlatCard(
-                    imagePath: 'assets/images/room1.png',
+                    imagePath: 'assets/images/room2.png',
                     location: 'Flat - Baneshwor, Kathmandu',
                     price: 'Rs.25000/month',
                     description:
@@ -163,7 +163,7 @@ class _FlatListScreenState extends State<FlatListScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildFlatCard(
-                    imagePath: 'assets/images/room1.png',
+                    imagePath: 'assets/images/room3.png',
                     location: 'Room - Thamel, Kathmandu',
                     price: 'Rs.8000/week',
                     description:
