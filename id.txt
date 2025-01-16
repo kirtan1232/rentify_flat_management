@@ -5,3 +5,5 @@ Name:Kirtan Shrestha
 Batch: C33B
 Coventry ID: 13703598
 Project: Flat Rental Application (Rentify)
+
+dart run build_runner build -d 
