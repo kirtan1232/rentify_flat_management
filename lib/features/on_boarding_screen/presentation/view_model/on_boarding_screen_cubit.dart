@@ -47,7 +47,7 @@ class OnBoardingScreenCubit extends Cubit<void> {
       bodyTextStyle: TextStyle(fontSize: 16),
       bodyPadding: EdgeInsets.all(16.0),
       imagePadding: EdgeInsets.only(top: 40),
-      pageColor: Color.fromARGB(255, 5, 228, 24), // Light green background
+      pageColor: Color(0xFF4CAF50), // Light green background
     );
   }
 
@@ -59,8 +59,7 @@ class OnBoardingScreenCubit extends Cubit<void> {
       activeSize: const Size(22, 10),
       activeShape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-      activeColor:
-          const Color.fromARGB(239, 9, 218, 16), // Active dot color (green)
+      activeColor: Colors.blueAccent,
     );
   }
 
