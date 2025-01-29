@@ -1,25 +1,23 @@
-part of 'login_bloc.dart';
+import 'package:equatable/equatable.dart';
 
-class LoginState {
-  final bool isLoading;
-  final bool isSuccess;
+abstract class LoginState extends Equatable {
+  const LoginState();
 
-  LoginState({
-    required this.isLoading,
-    required this.isSuccess,
-  });
+  @override
+  List<Object?> get props => [];
+}
 
-  LoginState.initial()
-      : isLoading = false,
-        isSuccess = false;
+class LoginInitial extends LoginState {}
 
-  LoginState copyWith({
-    bool? isLoading,
-    bool? isSuccess,
-  }) {
-    return LoginState(
-      isLoading: isLoading ?? this.isLoading,
-      isSuccess: isSuccess ?? this.isSuccess,
-    );
-  }
+class LoginLoading extends LoginState {}
+
+class LoginSuccess extends LoginState {}
+
+class LoginFailure extends LoginState {
+  final String errorMessage;
+
+  const LoginFailure(this.errorMessage);
+
+  @override
+  List<Object?> get props => [errorMessage];
 }
