@@ -1,23 +1,30 @@
-import 'package:equatable/equatable.dart';
+part of 'signup_bloc.dart';
 
-abstract class SignupState extends Equatable {
-  const SignupState();
+class SignupState {
+  final bool isLoading;
+  final bool isSuccess;
+  final String? imageName;
 
-  @override
-  List<Object?> get props => [];
-}
+  SignupState({
+    required this.isLoading,
+    required this.isSuccess,
+    this.imageName,
+  });
 
-class SignupInitial extends SignupState {}
+  SignupState.initial()
+      : isLoading = false,
+        isSuccess = false,
+        imageName = null;
 
-class SignupLoading extends SignupState {}
-
-class SignupSuccess extends SignupState {}
-
-class SignupFailure extends SignupState {
-  final String errorMessage;
-
-  const SignupFailure(this.errorMessage);
-
-  @override
-  List<Object?> get props => [errorMessage];
+  SignupState copyWith({
+    bool? isLoading,
+    bool? isSuccess,
+    String? imageName,
+  }) {
+    return SignupState(
+      isLoading: isLoading ?? this.isLoading,
+      isSuccess: isSuccess ?? this.isSuccess,
+      imageName: imageName ?? this.imageName,
+    );
+  }
 }
