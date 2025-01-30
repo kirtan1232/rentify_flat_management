@@ -1,7 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rentify_flat_management/core/network/api_service.dart';
 import 'package:rentify_flat_management/core/network/hive_service.dart';
 import 'package:rentify_flat_management/features/auth/data/data_source/local_data_source/auth_local_datasource.dart';
+import 'package:rentify_flat_management/features/auth/data/data_source/remote_data_source/auth_remote_datasource.dart';
 import 'package:rentify_flat_management/features/auth/data/repository/auth_local_repository/auth_local_repository.dart';
+import 'package:rentify_flat_management/features/auth/data/repository/auth_remote_repository.dart';
 import 'package:rentify_flat_management/features/auth/domain/use_case/login_usecase.dart';
 import 'package:rentify_flat_management/features/auth/domain/use_case/signup_usecase.dart';
 import 'package:rentify_flat_management/features/auth/domain/use_case/uploadImage_usecase.dart';
@@ -17,6 +21,8 @@ Future<void> initDependencies() async {
   // Initialize Hive Service
   await _initHiveService();
 
+  await _initApiService();
+
   // Initialize Splash Screen Dependencies
   await _initSplashDependencies();
 
@@ -30,6 +36,12 @@ Future<void> initDependencies() async {
   await _initSignupDependencies();
   // Add this line
   await _initHomeDependencies(); // Add this line
+}
+
+_initApiService() {
+  getIt.registerLazySingleton<Dio>(
+    () => ApiService(Dio()).dio,
+  );
 }
 
 _initHiveService() {
@@ -57,26 +69,35 @@ _initHomeDependencies() async {
   );
 }
 
+//SIGNUP DEPENDCIES
 _initSignupDependencies() async {
   getIt.registerLazySingleton(
     () => AuthLocalDataSource(getIt<HiveService>()),
+  );
+//remote data source
+  getIt.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSource(getIt<Dio>()),
   );
 
   // init local repository
   getIt.registerLazySingleton(
     () => AuthLocalRepository(getIt<AuthLocalDataSource>()),
   );
+  // init remote repository
+  getIt.registerLazySingleton(
+    () => AuthRemoteRepository(getIt<AuthRemoteDataSource>()),
+  );
 
   // register use usecase
   getIt.registerLazySingleton<SignupUseCase>(
     () => SignupUseCase(
-      getIt<AuthLocalRepository>(),
+      getIt<AuthRemoteRepository>(),
     ),
   );
 
-    getIt.registerLazySingleton<UploadImageUsecase>(
+  getIt.registerLazySingleton<UploadImageUsecase>(
     () => UploadImageUsecase(
-      getIt<AuthLocalRepository>(),
+      getIt<AuthRemoteRepository>(),
     ),
   );
 
@@ -88,10 +109,11 @@ _initSignupDependencies() async {
   );
 }
 
+//LOGIN DEPENDENCIES
 _initLoginDependencies() async {
   getIt.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(
-      getIt<AuthLocalRepository>(),
+      getIt<AuthRemoteRepository>(),
     ),
   );
 
