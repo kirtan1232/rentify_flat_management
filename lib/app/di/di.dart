@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rentify_flat_management/app/shared_prefs/token_shared_prefs.dart';
 import 'package:rentify_flat_management/core/network/api_service.dart';
 import 'package:rentify_flat_management/core/network/hive_service.dart';
 import 'package:rentify_flat_management/features/auth/data/data_source/local_data_source/auth_local_datasource.dart';
@@ -14,6 +15,7 @@ import 'package:rentify_flat_management/features/auth/presentation/view_model/si
 import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
 import 'package:rentify_flat_management/features/on_boarding_screen/presentation/view_model/on_boarding_screen_cubit.dart';
 import 'package:rentify_flat_management/features/splash_screen/presentation/view_model/splash_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
 
@@ -36,6 +38,12 @@ Future<void> initDependencies() async {
   await _initSignupDependencies();
   // Add this line
   await _initHomeDependencies(); // Add this line
+  await _initSharedPreferences(); // Add this line
+}
+
+Future<void> _initSharedPreferences() async {
+  final sharedPreferences = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
 }
 
 _initApiService() {
@@ -111,9 +119,14 @@ _initSignupDependencies() async {
 
 //LOGIN DEPENDENCIES
 _initLoginDependencies() async {
+  getIt.registerLazySingleton<TokenSharedPrefs>(
+    () => TokenSharedPrefs(getIt<SharedPreferences>()),
+  );
+
   getIt.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(
       getIt<AuthRemoteRepository>(),
+      getIt<TokenSharedPrefs>(),
     ),
   );
 
