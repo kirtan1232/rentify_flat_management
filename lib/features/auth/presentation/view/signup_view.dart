@@ -41,8 +41,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
       if (image != null) {
         setState(() {
           _img = File(image.path);
-            context.read<SignupBloc>().add(
-                LoadImage(file: _img!));
+          context.read<SignupBloc>().add(LoadImage(file: _img!));
         });
       }
     } catch (e) {
@@ -219,9 +218,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_key.currentState!.validate()) {
-                              final registerState =
-                              context.read<SignupBloc>().state;
-                          final imageName = registerState.imageName;
+                              final signupState =
+                                  context.read<SignupBloc>().state;
+                              final imageName = signupState.imageName;
                               context.read<SignupBloc>().add(
                                     SignupUser(
                                       context: context,
