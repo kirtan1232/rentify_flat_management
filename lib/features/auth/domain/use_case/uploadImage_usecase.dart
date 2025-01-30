@@ -5,7 +5,6 @@ import 'package:rentify_flat_management/app/usecase/usecase.dart';
 import 'package:rentify_flat_management/core/error/failure.dart';
 import 'package:rentify_flat_management/features/auth/domain/repository/auth_repository.dart';
 
-
 class UploadImageParams {
   final File file;
   const UploadImageParams({
