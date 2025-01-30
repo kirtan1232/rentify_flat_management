@@ -51,13 +51,17 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     Emitter<SignupState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
-    final result =
-        await _uploadImageUsecase.call(UploadImageParams(file: event.file));
+    final result = await _uploadImageUsecase.call(
+      UploadImageParams(
+        file: event.file,
+      ),
+    );
 
     result.fold(
       (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
-      (r) =>
-          emit(state.copyWith(isLoading: false, isSuccess: true, imageName: r)),
+      (r) {
+        emit(state.copyWith(isLoading: false, isSuccess: true, imageName: r));
+      },
     );
   }
 }
