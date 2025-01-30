@@ -12,7 +12,7 @@ ThemeData getApplicationTheme() {
               color: Colors.white,
               fontWeight: FontWeight.w500,
               fontFamily: 'Montserrat Bold'),
-          backgroundColor: Colors.orange,
+          backgroundColor: Colors.green,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50),
           ),

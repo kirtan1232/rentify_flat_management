@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:rentify_flat_management/core/error/failure.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 

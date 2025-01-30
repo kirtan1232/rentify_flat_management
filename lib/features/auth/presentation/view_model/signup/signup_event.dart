@@ -1,27 +1,35 @@
-import 'package:equatable/equatable.dart';
+part of 'signup_bloc.dart';
 
-abstract class SignupEvent extends Equatable {
+sealed class SignupEvent extends Equatable {
   const SignupEvent();
 
   @override
-  List<Object?> get props => [];
+  List<Object> get props => [];
+}
+class LoadImage extends SignupEvent {
+  final File file;
+
+  const LoadImage({
+    required this.file,
+  });
 }
 
-class SignupButtonPressed extends SignupEvent {
+class SignupUser extends SignupEvent {
+  final BuildContext context;
   final String fullName;
-  final String phoneNumber;
+
+  // final String phone;
   final String email;
   final String password;
-  final String confirmPassword;
+  final String? image;
 
-  const SignupButtonPressed({
+
+  const SignupUser({
+    required this.context,
     required this.fullName,
-    required this.phoneNumber,
+    // required this.phone,
     required this.email,
     required this.password,
-    required this.confirmPassword,
+     this.image,
   });
-
-  @override
-  List<Object?> get props => [fullName, phoneNumber, email, password, confirmPassword];
 }

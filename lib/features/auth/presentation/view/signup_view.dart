@@ -259,7 +259,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                                   builder: (context) {
                                     return BlocProvider<LoginBloc>(
                                       create: (_) => getIt<LoginBloc>(),
-                                      child: const LoginScreenView(),
+                                      child: LoginScreenView(),
                                     );
                                   },
                                 ),
