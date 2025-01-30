@@ -27,4 +27,7 @@ class SignupState {
       imageName: imageName ?? this.imageName,
     );
   }
-}
+  List<Object?> get props => [isLoading, isSuccess, imageName];
+  }
+
+
