@@ -17,7 +17,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         // Simulating successful signup
         yield SignupSuccess();
       } else {
-        yield SignupFailure("Passwords do not match.");
+        yield const SignupFailure("Passwords do not match.");
       }
     }
   }
