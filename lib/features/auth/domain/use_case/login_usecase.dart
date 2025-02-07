@@ -19,6 +19,10 @@ class LoginParams extends Equatable {
       : email = '',
         password = '';
 
+  // const LoginParams.empty()
+  //     : email = '_empty.string',
+  //       password = '_empty.string';
+
   @override
   List<Object> get props => [email, password];
 }
@@ -28,7 +32,6 @@ class LoginUseCase implements UsecaseWithParams<String, LoginParams> {
   final TokenSharedPrefs tokenSharedPrefs;
 
   LoginUseCase(this.repository, this.tokenSharedPrefs);
-
 
   @override
   Future<Either<Failure, String>> call(LoginParams params) {
