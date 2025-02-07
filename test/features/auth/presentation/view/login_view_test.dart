@@ -12,14 +12,14 @@ import 'package:rentify_flat_management/features/home/presentation/view_model/ho
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
-class MockRegisterBloc extends Mock implements SignupBloc {}
+class MockSignupBloc extends Mock implements SignupBloc {}
 
 class MockHomeCubit extends Mock implements HomeCubit {}
 
 void main() {
   late LoginBloc loginBloc;
   late LoginUseCase loginUseCase;
-  late SignupBloc registerBloc;
+  late SignupBloc signupBloc;
   late HomeCubit homeCubit;
 
   // setUpAll(() {
@@ -28,10 +28,10 @@ void main() {
 
   setUp(() {
     loginUseCase = MockLoginUseCase();
-    registerBloc = MockRegisterBloc();
+    signupBloc = MockSignupBloc();
     homeCubit = MockHomeCubit();
     loginBloc = LoginBloc(
-      signupBloc: registerBloc,
+      signupBloc: signupBloc,
       homeCubit: homeCubit,
       loginUseCase: loginUseCase,
     );
@@ -40,13 +40,12 @@ void main() {
   });
 
   test('initial state should be LoginState.initial()', () {
-    expect(loginBloc.state, equals(LoginState.initial()));
+    expect(loginBloc.state, equals(const LoginState.initial()));
     expect(loginBloc.state.isLoading, false);
     expect(loginBloc.state.isSuccess, false);
   });
 
-  testWidgets('Check for the email and password in the view',
-      (tester) async {
+  testWidgets('Check for the email and password in the view', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: BlocProvider(
         create: (context) => loginBloc,
@@ -95,11 +94,10 @@ void main() {
     when(() => loginUseCase(any())).thenAnswer((invocation) async {
       // As you are using LoginParams, you have to use registerFallbackValue(LoginParams.empty());
       final params = invocation.positionalArguments[0] as LoginParams;
-      if (params.email == correctEmail &&
-          params.password == correctPassword) {
-        return Right('token');
+      if (params.email == correctEmail && params.password == correctPassword) {
+        return const Right('token');
       } else {
-        return Left(ApiFailure(message: 'Invalid Credentials'));
+        return const Left(ApiFailure(message: 'Invalid Credentials'));
       }
     });
 
@@ -126,4 +124,3 @@ void main() {
     expect(loginBloc.state.isSuccess, true);
   });
 }
-
