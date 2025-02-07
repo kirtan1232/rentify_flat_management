@@ -3,90 +3,115 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:rentify_flat_management/core/error/failure.dart';
 import 'package:rentify_flat_management/features/auth/domain/entity/auth_entity.dart';
-import 'package:rentify_flat_management/features/auth/domain/repository/auth_repository.dart';
 import 'package:rentify_flat_management/features/auth/domain/use_case/signup_usecase.dart';
 
-// Mock the IAuthRepoitory
-class MockAuthRepository extends Mock implements IAuthRepository {}
+import 'repository.mock.dart';
 
 void main() {
+  late MockAuthRepository repository;
   late SignupUseCase useCase;
-  late MockAuthRepository mockRepository;
 
   setUp(() {
-    mockRepository = MockAuthRepository();
-    useCase = SignupUseCase(mockRepository);
+    repository = MockAuthRepository();
+    useCase = SignupUseCase(repository);
+    registerFallbackValue(const AuthEntity(
+      fullName: 'Kirtan Shrestha',
+      email: 'kirtan.doe@example.com',
+      password: 'password123',
+      image: 'profile.jpg',
+    ));
   });
 
-  // Test case for successful signup
-  test('should call signupUser with correct AuthEntity and return void',
-      () async {
-    // Arrange
-    const params = SignupUserParams(
-      fullName: 'Kirtan Shrestha',
-      email: 'kirtan.doe@example.com',
-      password: 'password123',
-      image: 'profile.jpg',
-    );
+  const registerParams = SignupUserParams(
+    fullName: 'Kirtan Shrestha',
+    email: 'kirtan.doe@example.com',
+    password: 'password123',
+    image: 'profile.jpg',
+  );
 
-    const authEntity = AuthEntity(
-      fullName: 'Kirtan Shrestha',
-      email: 'kirtan.doe@example.com',
-      password: 'password123',
-      image: 'profile.jpg',
-    );
+  group('RegisterUseCase Tests', () {
+    test('should return Failure when email is already in use', () async {
+      // Arrange
+      when(() => repository.signupUser(any())).thenAnswer((_) async =>
+          const Left(ApiFailure(message: "Email is already registered")));
 
-    // Mock the repository to return Right(null) for successful signup
-    when(() => mockRepository.signupUser(authEntity))
-        .thenAnswer((_) async => const Right(null));
+      // Act
+      final result = await useCase(registerParams);
 
-    // Act
-    final result = await useCase(params);
+      // Assert
+      expect(result,
+          const Left(ApiFailure(message: "Email is already registered")));
+      verify(() => repository.signupUser(any())).called(1);
+    });
 
-    // Assert
-    expect(result, const Right(null)); // Verify that the result is Right(null)
-    verify(() => mockRepository.signupUser(authEntity)).called(
-        1); // Verify that signupUser was called with the correct AuthEntity
-    verifyNoMoreInteractions(
-        mockRepository); // Ensure no other interactions with the repository
-  });
+    test('should return Failure when required fields are missing', () async {
+      // Arrange
+      const invalidParams = SignupUserParams(
+        fullName: '',
+        email: 'kirtan.doe@example.com',
+        password: 'password123',
+        image: 'profile.jpg',
+      );
 
-  // Test case for signup failure
-  test('should return a Failure when signupUser fails', () async {
-    // Arrange
-    const params = SignupUserParams(
-      fullName: 'Kirtan Shrestha',
-      email: 'kirtan.doe@example.com',
-      password: 'password123',
-      image: 'profile.jpg',
-    );
+      when(() => repository.signupUser(any())).thenAnswer((_) async =>
+          const Left(ApiFailure(message: "One or more credentials are empty")));
 
-    const authEntity = AuthEntity(
-      fullName: 'Kirtan Shrestha',
-      email: 'kirtan.doe@example.com',
-      password: 'password123',
-      image: 'profile.jpg',
-    );
+      // Act
+      final result = await useCase(invalidParams);
 
-    const failure = ApiFailure(message: 'Signup failed');
+      // Assert
+      expect(result,
+          const Left(ApiFailure(message: "One or more credentials are empty")));
+      verify(() => repository.signupUser(any())).called(1);
+    });
 
-    // Mock the repository to return Left(Failure) for failed signup
-    when(() => mockRepository.signupUser(authEntity))
-        .thenAnswer((_) async => const Left(failure));
+    test('should return Failure when there is Api Failure', () async {
+      // Arrange
+      when(() => repository.signupUser(any())).thenAnswer((_) async =>
+          const Left(ApiFailure(message: "Unexpected server error")));
 
-    // Act
-    final result = await useCase(params);
+      // Act
+      final result = await useCase(registerParams);
 
-    // Assert
-    expect(
-        result, const Left(failure)); // Verify that the result is Left(Failure)
-    verify(() => mockRepository.signupUser(authEntity)).called(
-        1); // Verify that signupUser was called with the correct AuthEntity
-    verifyNoMoreInteractions(
-        mockRepository); // Ensure no other interactions with the repository
-  });
+      // Assert
+      expect(
+          result, const Left(ApiFailure(message: "Unexpected server error")));
+      verify(() => repository.signupUser(any())).called(1);
+    });
 
-  tearDown(() {
-    reset(mockRepository); // Reset the mock after each test
+    test('should successfully register a user and return Right(null)',
+        () async {
+      // Arrange
+      when(() => repository.signupUser(any()))
+          .thenAnswer((_) async => const Right(null));
+
+      // Act
+      final result = await useCase(registerParams);
+
+      // Assert
+      expect(result, const Right(null));
+      verify(() => repository.signupUser(any())).called(1);
+      verifyNoMoreInteractions(repository);
+    });
+
+    test('should return Failure when passwords do not match', () async {
+      // Arrange
+      const mismatchedParams = SignupUserParams(
+        fullName: 'Kirtan Shrestha',
+        email: 'kirtan.doe@example.com',
+        password: 'password123',
+        image: 'profile.jpg',
+      );
+
+      when(() => repository.signupUser(any())).thenAnswer((_) async =>
+          const Left(ApiFailure(message: "Passwords do not match")));
+
+      // Act
+      final result = await useCase(mismatchedParams);
+
+      // Assert
+      expect(result, const Left(ApiFailure(message: "Passwords do not match")));
+      verify(() => repository.signupUser(any())).called(1);
+    });
   });
 }
