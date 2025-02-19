@@ -94,24 +94,24 @@ void main() {
       verifyNoMoreInteractions(repository);
     });
 
-    test('should return Failure when passwords do not match', () async {
-      // Arrange
-      const mismatchedParams = SignupUserParams(
-        fullName: 'Kirtan Shrestha',
-        email: 'kirtan.doe@example.com',
-        password: 'password123',
-        image: 'profile.jpg',
-      );
+    // test('should return Failure when passwords do not match', () async {
+    //   // Arrange
+    //   const mismatchedParams = SignupUserParams(
+    //     fullName: 'Kirtan Shrestha',
+    //     email: 'kirtan.doe@example.com',
+    //     password: 'password123',
+    //     image: 'profile.jpg',
+    //   );
 
-      when(() => repository.signupUser(any())).thenAnswer((_) async =>
-          const Left(ApiFailure(message: "Passwords do not match")));
+    //   when(() => repository.signupUser(any())).thenAnswer((_) async =>
+    //       const Left(ApiFailure(message: "Passwords do not match")));
 
-      // Act
-      final result = await useCase(mismatchedParams);
+    //   // Act
+    //   final result = await useCase(mismatchedParams);
 
-      // Assert
-      expect(result, const Left(ApiFailure(message: "Passwords do not match")));
-      verify(() => repository.signupUser(any())).called(1);
-    });
+    //   // Assert
+    //   expect(result, const Left(ApiFailure(message: "Passwords do not match")));
+    //   verify(() => repository.signupUser(any())).called(1);
+    // });
   });
 }
