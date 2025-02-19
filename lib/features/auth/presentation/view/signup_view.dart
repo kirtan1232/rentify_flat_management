@@ -19,7 +19,7 @@ class SignupScreenView extends StatefulWidget {
 class _SignupScreenViewState extends State<SignupScreenView> {
   final _gap = const SizedBox(height: 8);
   final _key = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController(text: 'Kirtan Shrestha');
+  final _nameController = TextEditingController(text: 'Kirtan Shrestha');
   final _emailController = TextEditingController(text: 'example@gmail.com');
   final _passwordController = TextEditingController(text: '1234');
   final _confirmPasswordController = TextEditingController();
@@ -149,7 +149,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
 
                       // Full Name Field
                       TextFormField(
-                        controller: _fullNameController,
+                        controller: _nameController,
                         decoration: const InputDecoration(
                           labelText: 'Full Name',
                         ),
@@ -224,7 +224,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                               context.read<SignupBloc>().add(
                                     SignupUser(
                                       context: context,
-                                      fullName: _fullNameController.text,
+                                      name: _nameController.text,
                                       email: _emailController.text,
                                       password: _passwordController.text,
                                       image: imageName,

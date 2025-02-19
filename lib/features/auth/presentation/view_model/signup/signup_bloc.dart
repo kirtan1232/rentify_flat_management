@@ -30,7 +30,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   ) async {
     emit(state.copyWith(isLoading: true));
     final result = await _signupUseCase.call(SignupUserParams(
-      fullName: event.fullName,
+      name: event.name,
       email: event.email,
       password: event.password,
       image: state.imageName,

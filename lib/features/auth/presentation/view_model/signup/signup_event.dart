@@ -16,7 +16,7 @@ class LoadImage extends SignupEvent {
 
 class SignupUser extends SignupEvent {
   final BuildContext context;
-  final String fullName;
+  final String name;
 
   // final String phone;
   final String email;
@@ -26,7 +26,7 @@ class SignupUser extends SignupEvent {
 
   const SignupUser({
     required this.context,
-    required this.fullName,
+    required this.name,
     // required this.phone,
     required this.email,
     required this.password,

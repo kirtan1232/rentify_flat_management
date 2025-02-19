@@ -15,7 +15,7 @@ void main() {
     repository = MockAuthRepository();
     useCase = SignupUseCase(repository);
     registerFallbackValue(const AuthEntity(
-      fullName: 'Kirtan Shrestha',
+      name: 'Kirtan Shrestha',
       email: 'kirtan.doe@example.com',
       password: 'password123',
       image: 'profile.jpg',
@@ -23,7 +23,7 @@ void main() {
   });
 
   const registerParams = SignupUserParams(
-    fullName: 'Kirtan Shrestha',
+    name: 'Kirtan Shrestha',
     email: 'kirtan.doe@example.com',
     password: 'password123',
     image: 'profile.jpg',
@@ -47,7 +47,7 @@ void main() {
     test('should return Failure when required fields are missing', () async {
       // Arrange
       const invalidParams = SignupUserParams(
-        fullName: '',
+        name: '',
         email: 'kirtan.doe@example.com',
         password: 'password123',
         image: 'profile.jpg',
