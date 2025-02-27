@@ -1,4 +1,3 @@
-// lib/features/home/presentation/view/bottom_view/flats_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rentify_flat_management/app/constants/api_endpoints.dart';
@@ -14,16 +13,12 @@ class FlatsView extends StatefulWidget {
 
 class _FlatsViewState extends State<FlatsView> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  String _searchQuery = ''; // Holds the submitted search query
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.toLowerCase();
-      });
-    });
+    // Remove the listener since we don’t want real-time updates
   }
 
   @override
@@ -38,8 +33,7 @@ class _FlatsViewState extends State<FlatsView> {
       create: (_) => getIt<RoomBloc>(),
       child: Builder(
         builder: (blocContext) {
-          BlocProvider.of<RoomBloc>(blocContext)
-              .add(FetchRoomsEvent(blocContext));
+          BlocProvider.of<RoomBloc>(blocContext).add(FetchRoomsEvent(blocContext));
           return Scaffold(
             body: BlocBuilder<RoomBloc, RoomState>(
               builder: (context, state) {
@@ -50,9 +44,10 @@ class _FlatsViewState extends State<FlatsView> {
                   return Center(child: Text('Error: ${state.error}'));
                 }
 
+                // Filter rooms only based on the submitted _searchQuery
                 final filteredRooms = state.rooms.where((room) {
                   return _searchQuery.isEmpty ||
-                      room.address.toLowerCase().contains(_searchQuery);
+                      room.address.toLowerCase().contains(_searchQuery.toLowerCase());
                 }).toList();
 
                 return SingleChildScrollView(
@@ -63,13 +58,11 @@ class _FlatsViewState extends State<FlatsView> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? Colors.grey[200]
-                                    : Colors.grey[800],
+                            color: Theme.of(context).brightness == Brightness.light
+                                ? Colors.grey[200]
+                                : Colors.grey[800],
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                                color: Theme.of(context).dividerColor),
+                            border: Border.all(color: Theme.of(context).dividerColor),
                           ),
                           child: TextField(
                             controller: _searchController,
@@ -78,6 +71,12 @@ class _FlatsViewState extends State<FlatsView> {
                               border: InputBorder.none,
                               icon: Icon(Icons.search),
                             ),
+                            onSubmitted: (value) {
+                              // Update _searchQuery only when Enter is pressed
+                              setState(() {
+                                _searchQuery = value;
+                              });
+                            },
                           ),
                         ),
                       ),
@@ -95,8 +94,7 @@ class _FlatsViewState extends State<FlatsView> {
                             context: context,
                             title: room.roomDescription,
                             price: 'Rs.${room.rentPrice}/month',
-                            description:
-                                '${room.roomDescription} at ${room.address}',
+                            description: '${room.roomDescription} at ${room.address}',
                             rooms: '${room.floor} Floor',
                             furniture: room.parking,
                             bathrooms: room.bathroom.toString(),
@@ -164,8 +162,7 @@ class _FlatsViewState extends State<FlatsView> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
@@ -175,13 +172,9 @@ class _FlatsViewState extends State<FlatsView> {
                   ),
                   onPressed: () {
                     if (isWishlisted) {
-                      context
-                          .read<RoomBloc>()
-                          .add(RemoveFromWishlistEvent(roomId, context));
+                      context.read<RoomBloc>().add(RemoveFromWishlistEvent(roomId, context));
                     } else {
-                      context
-                          .read<RoomBloc>()
-                          .add(AddToWishlistEvent(roomId, context));
+                      context.read<RoomBloc>().add(AddToWishlistEvent(roomId, context));
                     }
                   },
                 ),

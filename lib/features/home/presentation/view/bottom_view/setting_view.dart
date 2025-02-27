@@ -1,9 +1,10 @@
-// lib/features/home/presentation/view/bottom_view/setting_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rentify_flat_management/app/di/di.dart';
+import 'package:rentify_flat_management/app/shared_prefs/token_shared_prefs.dart';
 import 'package:rentify_flat_management/core/app_theme/theme_cubit.dart';
 import 'package:rentify_flat_management/core/utils/email_sender.dart';
+import 'package:rentify_flat_management/features/auth/presentation/view/login_view.dart';
 import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/edit_profile.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
 
@@ -15,6 +16,16 @@ class SettingView extends StatefulWidget {
 }
 
 class _SettingViewState extends State<SettingView> {
+  Future<void> _logout(BuildContext context) async {
+    final tokenSharedPrefs = getIt<TokenSharedPrefs>();
+    await tokenSharedPrefs.saveToken(''); // Clear the token
+    print('Token cleared, navigating to LoginScreenView');
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => LoginScreenView()),
+      (route) => false, // Remove all previous routes
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +60,6 @@ class _SettingViewState extends State<SettingView> {
                   },
                 ),
                 _buildListTile(Icons.notifications, 'Notifications', () {
-                  // Navigate to Notifications tab (index 3)
                   context.read<HomeCubit>().onTabTapped(3);
                 }),
                 BlocBuilder<ThemeCubit, bool>(
@@ -106,9 +116,7 @@ class _SettingViewState extends State<SettingView> {
                       message: 'Logging out...',
                       color: Colors.red,
                     );
-                    Future.delayed(const Duration(seconds: 0), () {
-                      context.read<HomeCubit>().logout(context);
-                    });
+                    _logout(context); // Call logout directly
                   },
                 ),
               ],
