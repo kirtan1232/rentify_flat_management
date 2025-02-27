@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rentify_flat_management/app/di/di.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view/signup_view.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view_model/login/login_bloc.dart';
-import 'package:rentify_flat_management/features/home/presentation/view/home_view.dart';
+
 
 class LoginScreenView extends StatelessWidget {
   LoginScreenView({super.key});
