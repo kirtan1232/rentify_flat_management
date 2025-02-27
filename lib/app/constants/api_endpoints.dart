@@ -8,10 +8,12 @@ class ApiEndpoints {
   // static const String baseUrl = "http://localhost:3000/api/v1/";
 
   // ====================== Auth Routes ======================
-  static const String login = "auth/login"; // Already aligned with backend
-  static const String signup = "v1/register"; // Note: Adjust if needed (see below)
+  static const String login = "v1/login"; // Already aligned with backend
+  static const String signup =
+      "v1/register"; // Note: Adjust if needed (see below)
   static const String imageUrl = "http://192.168.1.9:3000/uploads/";
-  static const String uploadImage = "v1/uploadImage"; // Note: Adjust if needed (see below)
+  static const String uploadImage =
+      "v1/uploadImage"; // Note: Adjust if needed (see below)
 
   // ====================== Room Routes ======================
   static const String getAllRooms = "rooms"; // Maps to GET /api/rooms

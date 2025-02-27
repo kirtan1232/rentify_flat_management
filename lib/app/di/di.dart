@@ -1,6 +1,8 @@
+// lib/app/di/di.dart
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rentify_flat_management/app/shared_prefs/token_shared_prefs.dart';
+import 'package:rentify_flat_management/core/app_theme/theme_cubit.dart';
 import 'package:rentify_flat_management/core/network/api_service.dart';
 import 'package:rentify_flat_management/core/network/hive_service.dart';
 import 'package:rentify_flat_management/features/auth/data/data_source/local_data_source/auth_local_datasource.dart';
@@ -15,7 +17,10 @@ import 'package:rentify_flat_management/features/auth/presentation/view_model/si
 import 'package:rentify_flat_management/features/home/data/data_source/remote_data_source/room_remote_data_source.dart';
 import 'package:rentify_flat_management/features/home/data/repository/room_repository_impl.dart';
 import 'package:rentify_flat_management/features/home/domain/repository/room_repository.dart';
+import 'package:rentify_flat_management/features/home/domain/usecase/add_to_wishlist_usecase.dart';
 import 'package:rentify_flat_management/features/home/domain/usecase/get_all_room_usecase.dart';
+import 'package:rentify_flat_management/features/home/domain/usecase/get_wishlist.dart';
+import 'package:rentify_flat_management/features/home/domain/usecase/remove_from_wishlist_usecase.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/room/room_bloc.dart';
 import 'package:rentify_flat_management/features/on_boarding_screen/presentation/view_model/on_boarding_screen_cubit.dart';
@@ -33,7 +38,8 @@ Future<void> initDependencies() async {
   await _initSignupDependencies();
   await _initHomeDependencies();
   await _initSharedPreferences();
-  await _initRoomDependencies(); // Add this
+  await _initRoomDependencies();
+  await _initThemeDependencies();
 }
 
 Future<void> _initSharedPreferences() async {
@@ -42,90 +48,75 @@ Future<void> _initSharedPreferences() async {
 }
 
 _initApiService() {
-  getIt.registerLazySingleton<Dio>(
-    () => ApiService(Dio()).dio,
-  );
+  getIt.registerLazySingleton<Dio>(() => ApiService(Dio()).dio);
 }
 
 _initHiveService() {
   getIt.registerLazySingleton<HiveService>(() => HiveService());
 }
 
-_initSplashDependencies() async {
-  getIt.registerFactory<SplashCubit>(
-    () => SplashCubit(getIt<OnBoardingScreenCubit>()),
-  );
-}
-
 _initOnboardingDependencies() async {
   getIt.registerFactory<OnBoardingScreenCubit>(
-    () => OnBoardingScreenCubit(getIt<LoginBloc>()),
-  );
+      () => OnBoardingScreenCubit(getIt<LoginBloc>()));
 }
 
-_initHomeDependencies() async {
-  getIt.registerFactory<HomeCubit>(
-    () => HomeCubit(),
-  );
+Future<void> _initHomeDependencies() async {
+  getIt.registerFactory<HomeCubit>(() => HomeCubit());
+}
+
+Future<void> _initSplashDependencies() async {
+  getIt.registerFactory<SplashCubit>(
+      () => SplashCubit(getIt<OnBoardingScreenCubit>()));
 }
 
 _initSignupDependencies() async {
-  getIt.registerLazySingleton(
-    () => AuthLocalDataSource(getIt<HiveService>()),
-  );
+  getIt.registerLazySingleton(() => AuthLocalDataSource(getIt<HiveService>()));
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSource(getIt<Dio>()),
-  );
+      () => AuthRemoteDataSource(getIt<Dio>()));
   getIt.registerLazySingleton(
-    () => AuthLocalRepository(getIt<AuthLocalDataSource>()),
-  );
+      () => AuthLocalRepository(getIt<AuthLocalDataSource>()));
   getIt.registerLazySingleton(
-    () => AuthRemoteRepository(getIt<AuthRemoteDataSource>()),
-  );
+      () => AuthRemoteRepository(getIt<AuthRemoteDataSource>()));
   getIt.registerLazySingleton<SignupUseCase>(
-    () => SignupUseCase(getIt<AuthRemoteRepository>()),
-  );
+      () => SignupUseCase(getIt<AuthRemoteRepository>()));
   getIt.registerLazySingleton<UploadImageUsecase>(
-    () => UploadImageUsecase(getIt<AuthRemoteRepository>()),
-  );
+      () => UploadImageUsecase(getIt<AuthRemoteRepository>()));
   getIt.registerFactory<SignupBloc>(
-    () => SignupBloc(
-      signupUseCase: getIt(),
-      uploadImageUsecase: getIt(),
-    ),
-  );
+      () => SignupBloc(signupUseCase: getIt(), uploadImageUsecase: getIt()));
 }
 
 _initLoginDependencies() async {
   getIt.registerLazySingleton<TokenSharedPrefs>(
-    () => TokenSharedPrefs(getIt<SharedPreferences>()),
-  );
-  getIt.registerLazySingleton<LoginUseCase>(
-    () => LoginUseCase(
-      getIt<AuthRemoteRepository>(),
-      getIt<TokenSharedPrefs>(),
-    ),
-  );
-  getIt.registerFactory<LoginBloc>(
-    () => LoginBloc(
+      () => TokenSharedPrefs(getIt<SharedPreferences>()));
+  getIt.registerLazySingleton<LoginUseCase>(() =>
+      LoginUseCase(getIt<AuthRemoteRepository>(), getIt<TokenSharedPrefs>()));
+  getIt.registerFactory<LoginBloc>(() => LoginBloc(
       signupBloc: getIt<SignupBloc>(),
       homeCubit: getIt<HomeCubit>(),
-      loginUseCase: getIt<LoginUseCase>(),
-    ),
-  );
+      loginUseCase: getIt<LoginUseCase>()));
 }
 
-_initRoomDependencies() async {
+Future<void> _initRoomDependencies() async {
   getIt.registerLazySingleton<RoomRemoteDataSource>(
-    () => RoomRemoteDataSourceImpl(getIt<Dio>()),
-  );
+      () => RoomRemoteDataSourceImpl(getIt<Dio>(), getIt<TokenSharedPrefs>()));
   getIt.registerLazySingleton<RoomRepository>(
-    () => RoomRepositoryImpl(getIt<RoomRemoteDataSource>()),
-  );
+      () => RoomRepositoryImpl(getIt<RoomRemoteDataSource>()));
   getIt.registerLazySingleton<GetAllRoomsUseCase>(
-    () => GetAllRoomsUseCase(getIt<RoomRepository>()),
-  );
-  getIt.registerFactory<RoomBloc>(
-    () => RoomBloc(getIt<GetAllRoomsUseCase>()),
-  );
+      () => GetAllRoomsUseCase(getIt<RoomRepository>()));
+  getIt.registerLazySingleton<AddToWishlistUseCase>(
+      () => AddToWishlistUseCase(getIt<RoomRepository>()));
+  getIt.registerLazySingleton<GetWishlistUseCase>(
+      () => GetWishlistUseCase(getIt<RoomRepository>()));
+  getIt.registerLazySingleton<RemoveFromWishlistUseCase>(
+      () => RemoveFromWishlistUseCase(getIt<RoomRepository>()));
+  getIt.registerFactory<RoomBloc>(() => RoomBloc(
+        getIt<GetAllRoomsUseCase>(),
+        getIt<AddToWishlistUseCase>(),
+        getIt<GetWishlistUseCase>(),
+        getIt<RemoveFromWishlistUseCase>(),
+      ));
+}
+
+Future<void> _initThemeDependencies() async {
+  getIt.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
 }

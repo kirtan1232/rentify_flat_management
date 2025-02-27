@@ -1,3 +1,4 @@
+// lib/features/room/domain/entities/room_entity.dart
 import 'package:equatable/equatable.dart';
 
 class RoomEntity extends Equatable {
@@ -10,6 +11,7 @@ class RoomEntity extends Equatable {
   final String contactNo;
   final int bathroom;
   final String? roomImage;
+  final bool isWishlisted; // Added
 
   const RoomEntity({
     this.id,
@@ -21,7 +23,23 @@ class RoomEntity extends Equatable {
     required this.contactNo,
     required this.bathroom,
     this.roomImage,
+    this.isWishlisted = false, // Default to false
   });
+
+  RoomEntity copyWith({bool? isWishlisted}) {
+    return RoomEntity(
+      id: id,
+      roomDescription: roomDescription,
+      floor: floor,
+      address: address,
+      rentPrice: rentPrice,
+      parking: parking,
+      contactNo: contactNo,
+      bathroom: bathroom,
+      roomImage: roomImage,
+      isWishlisted: isWishlisted ?? this.isWishlisted,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -34,5 +52,6 @@ class RoomEntity extends Equatable {
         contactNo,
         bathroom,
         roomImage,
+        isWishlisted,
       ];
 }

@@ -1,3 +1,4 @@
+// lib/features/auth/presentation/view/signup_view.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -69,20 +70,18 @@ class _SignupScreenViewState extends State<SignupScreenView> {
               onPressed: () async {
                 await _checkCameraPermission();
                 await _browseImage(ImageSource.camera);
-                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.camera),
-              label: const Text('Camera'),
+              icon: const Icon(Icons.camera, color: Colors.black), // Changed to black
+              label: const Text('Camera', style: TextStyle(color: Colors.black)), // Changed to black
             ),
             ElevatedButton.icon(
               onPressed: () async {
                 await _browseImage(ImageSource.gallery);
-                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.image),
-              label: const Text('Gallery'),
+              icon: const Icon(Icons.image, color: Colors.black), // Changed to black
+              label: const Text('Gallery', style: TextStyle(color: Colors.black)), // Changed to black
             ),
           ],
         ),
@@ -110,8 +109,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
             child: Center(
               child: SingleChildScrollView(
                 child: Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -137,10 +135,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                           child: CircleAvatar(
                             backgroundImage: _img != null
                                 ? FileImage(_img!)
-                                : const AssetImage('assets/images/logo.png')
-                                    as ImageProvider,
+                                : const AssetImage('assets/images/logo.png') as ImageProvider,
                             child: _img == null
-                                ? const Icon(Icons.camera_alt, size: 50)
+                                ? const Icon(Icons.camera_alt, size: 50, color: Colors.black) // Changed to black
                                 : null,
                           ),
                         ),
@@ -152,7 +149,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         controller: _nameController,
                         decoration: const InputDecoration(
                           labelText: 'Full Name',
+                          labelStyle: TextStyle(color: Colors.black), // Force black
                         ),
+                        style: const TextStyle(color: Colors.black), // Force black text
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your full name';
@@ -167,7 +166,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         controller: _emailController,
                         decoration: const InputDecoration(
                           labelText: 'Email',
+                          labelStyle: TextStyle(color: Colors.black), // Force black
                         ),
+                        style: const TextStyle(color: Colors.black), // Force black text
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -183,7 +184,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.black), // Force black
                         ),
+                        style: const TextStyle(color: Colors.black), // Force black text
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
@@ -199,7 +202,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Confirm Password',
+                          labelStyle: TextStyle(color: Colors.black), // Force black
                         ),
+                        style: const TextStyle(color: Colors.black), // Force black text
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please confirm your password';
@@ -218,8 +223,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_key.currentState!.validate()) {
-                              final signupState =
-                                  context.read<SignupBloc>().state;
+                              final signupState = context.read<SignupBloc>().state;
                               final imageName = signupState.imageName;
                               context.read<SignupBloc>().add(
                                     SignupUser(
@@ -241,7 +245,10 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                           ),
                           child: const Text(
                             "Sign Up",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.black, // Changed to black
+                            ),
                           ),
                         ),
                       ),
@@ -250,7 +257,10 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("Already have an account? "),
+                          const Text(
+                            "Already have an account? ",
+                            style: TextStyle(color: Colors.black), // Changed to black
+                          ),
                           GestureDetector(
                             onTap: () {
                               Navigator.pushReplacement(
@@ -268,7 +278,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                             child: const Text(
                               "Login now",
                               style: TextStyle(
-                                color: Color(0xFF4CAF50),
+                                color: Colors.black, // Changed to black
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

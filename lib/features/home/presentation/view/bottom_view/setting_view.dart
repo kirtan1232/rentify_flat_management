@@ -1,5 +1,9 @@
+// lib/features/home/presentation/view/bottom_view/setting_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rentify_flat_management/app/di/di.dart';
+import 'package:rentify_flat_management/core/app_theme/theme_cubit.dart';
+import 'package:rentify_flat_management/core/utils/email_sender.dart';
 import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/edit_profile.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
 
@@ -11,8 +15,6 @@ class SettingView extends StatefulWidget {
 }
 
 class _SettingViewState extends State<SettingView> {
-  bool isDarkMode = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,9 +26,6 @@ class _SettingViewState extends State<SettingView> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          /// =========================
-          ///      GENERAL SECTION
-          /// =========================
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -49,15 +48,25 @@ class _SettingViewState extends State<SettingView> {
                     );
                   },
                 ),
-                _buildListTile(Icons.notifications, 'Notifications', () {}),
-                _buildDarkModeSwitch(),
+                _buildListTile(Icons.notifications, 'Notifications', () {
+                  // Navigate to Notifications tab (index 3)
+                  context.read<HomeCubit>().onTabTapped(3);
+                }),
+                BlocBuilder<ThemeCubit, bool>(
+                  builder: (context, isDarkMode) {
+                    return SwitchListTile(
+                      title: const Text('Dark Mode'),
+                      secondary: const Icon(Icons.dark_mode),
+                      value: isDarkMode,
+                      onChanged: (value) {
+                        context.read<ThemeCubit>().toggleTheme(value);
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
-
-          /// =========================
-          ///     FEEDBACK SECTION
-          /// =========================
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -68,15 +77,15 @@ class _SettingViewState extends State<SettingView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _SectionHeader(title: 'FEEDBACK'),
-                _buildListTile(Icons.bug_report, 'Report a bug', () {}),
-                _buildListTile(Icons.send, 'Send feedback', () {}),
+                _buildListTile(Icons.bug_report, 'Report a bug', () {
+                  _showBugReportDialog(context);
+                }),
+                _buildListTile(Icons.send, 'Send feedback', () {
+                  _showFeedbackDialog(context);
+                }),
               ],
             ),
           ),
-
-          /// =========================
-          ///      LOGOUT SECTION
-          /// =========================
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -97,8 +106,6 @@ class _SettingViewState extends State<SettingView> {
                       message: 'Logging out...',
                       color: Colors.red,
                     );
-
-                    // Delay logout to ensure snackbar is visible
                     Future.delayed(const Duration(seconds: 0), () {
                       context.read<HomeCubit>().logout(context);
                     });
@@ -112,33 +119,135 @@ class _SettingViewState extends State<SettingView> {
     );
   }
 
-  /// Builds a standard ListTile with an icon
   Widget _buildListTile(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: Colors.black54),
+      leading: Icon(icon),
       title: Text(title),
-      trailing:
-          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
     );
   }
 
-  /// Builds the Dark Mode toggle switch
-  Widget _buildDarkModeSwitch() {
-    return SwitchListTile(
-      title: const Text('Dark Mode'),
-      secondary: const Icon(Icons.dark_mode, color: Colors.black54),
-      value: isDarkMode,
-      onChanged: (value) {
-        setState(() {
-          isDarkMode = value;
-        });
+  void _showFeedbackDialog(BuildContext context) {
+    final feedbackController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Send Feedback'),
+          content: TextField(
+            controller: feedbackController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Enter your feedback here...',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (feedbackController.text.isNotEmpty) {
+                  try {
+                    await sendEmail(
+                      content: feedbackController.text,
+                      subject: 'User Feedback',
+                    );
+                    Navigator.pop(dialogContext);
+                    showMySnackBar(
+                      context: context,
+                      message: 'Feedback sent successfully!',
+                      color: Colors.green,
+                    );
+                  } catch (e) {
+                    showMySnackBar(
+                      context: context,
+                      message: 'Failed to send feedback: $e',
+                      color: Colors.red,
+                    );
+                  }
+                } else {
+                  showMySnackBar(
+                    context: context,
+                    message: 'Please enter feedback',
+                    color: Colors.red,
+                  );
+                }
+              },
+              child: const Text('Send'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showBugReportDialog(BuildContext context) {
+    final bugReportController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Report a Bug',
+            style: TextStyle(color: Colors.red),
+          ),
+          content: TextField(
+            controller: bugReportController,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Describe the bug here...',
+              hintStyle: TextStyle(color: Colors.red),
+              border: OutlineInputBorder(),
+            ),
+            style: const TextStyle(color: Colors.red),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (bugReportController.text.isNotEmpty) {
+                  try {
+                    await sendEmail(
+                      content: bugReportController.text,
+                      subject: 'Bug Report',
+                    );
+                    Navigator.pop(dialogContext);
+                    showMySnackBar(
+                      context: context,
+                      message: 'Bug report sent successfully!',
+                      color: Colors.green,
+                    );
+                  } catch (e) {
+                    showMySnackBar(
+                      context: context,
+                      message: 'Failed to send bug report: $e',
+                      color: Colors.red,
+                    );
+                  }
+                } else {
+                  showMySnackBar(
+                    context: context,
+                    message: 'Please enter a bug description',
+                    color: Colors.red,
+                  );
+                }
+              },
+              child: const Text('Send'),
+            ),
+          ],
+        );
       },
     );
   }
 }
 
-/// Simple widget for section header
 class _SectionHeader extends StatelessWidget {
   final String title;
   const _SectionHeader({required this.title});
@@ -151,18 +260,16 @@ class _SectionHeader extends StatelessWidget {
         title,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          color: Colors.grey,
         ),
       ),
     );
   }
 }
 
-/// Snackbar function to show messages
 void showMySnackBar({
   required BuildContext context,
   required String message,
-  required Color color,
+  Color color = Colors.green,
 }) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

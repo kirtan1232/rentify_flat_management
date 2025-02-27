@@ -1,3 +1,4 @@
+// lib/features/room/data/models/room_api_model.dart
 import 'package:json_annotation/json_annotation.dart';
 import 'package:rentify_flat_management/features/home/domain/entity/room_entity.dart';
 
@@ -34,7 +35,7 @@ class RoomApiModel {
 
   Map<String, dynamic> toJson() => _$RoomApiModelToJson(this);
 
-  RoomEntity toEntity() => RoomEntity(
+  RoomEntity toEntity({bool isWishlisted = false}) => RoomEntity(
         id: id,
         roomDescription: roomDescription,
         floor: floor,
@@ -44,6 +45,7 @@ class RoomApiModel {
         contactNo: contactNo,
         bathroom: bathroom,
         roomImage: roomImage,
+        isWishlisted: isWishlisted,
       );
 
   static RoomApiModel fromEntity(RoomEntity entity) => RoomApiModel(

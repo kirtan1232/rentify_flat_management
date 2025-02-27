@@ -5,4 +5,7 @@ import 'package:rentify_flat_management/features/home/domain/entity/room_entity.
 
 abstract class RoomRepository {
   Future<Either<Failure, List<RoomEntity>>> getAllRooms();
+  Future<Either<Failure, void>> addToWishlist(String roomId);
+  Future<Either<Failure, List<RoomEntity>>> getWishlist();
+  Future<Either<Failure, void>> removeFromWishlist(String roomId); // Added
 }

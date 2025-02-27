@@ -14,8 +14,37 @@ class RoomRepositoryImpl implements RoomRepository {
   Future<Either<Failure, List<RoomEntity>>> getAllRooms() async {
     try {
       final roomModels = await remoteDataSource.getAllRooms();
-      final roomEntities = roomModels.map((model) => model.toEntity()).toList();
-      return Right(roomEntities);
+      return Right(roomModels.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addToWishlist(String roomId) async {
+    try {
+      await remoteDataSource.addToWishlist(roomId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<RoomEntity>>> getWishlist() async {
+    try {
+      final roomModels = await remoteDataSource.getWishlist();
+      return Right(roomModels.map((model) => model.toEntity(isWishlisted: true)).toList());
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeFromWishlist(String roomId) async {
+    try {
+      await remoteDataSource.removeFromWishlist(roomId);
+      return const Right(null);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));
     }
