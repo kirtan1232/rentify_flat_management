@@ -1,5 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/dashboard_view.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/flats_view.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/setting_view.dart';
 
 class HomeState extends Equatable {
   final int selectedIndex;
@@ -16,19 +19,13 @@ class HomeState extends Equatable {
       selectedIndex: 0,
       views: [
         Center(
-          child: Text('Home'),
+          child: DashboardView(),
         ),
         Center(
-          child: Text('Search'),
+          child: FlatsView(),
         ),
         Center(
-          child: Text('Scan QR'),
-        ),
-        Center(
-          child: Text('Notifications'),
-        ),
-        Center(
-          child: Text('Settings'),
+          child: SettingView(),
         ),
       ],
     );

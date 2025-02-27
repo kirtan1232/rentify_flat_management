@@ -29,10 +29,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         onDone: () => _onBordingCubit.navigateToLogin(context),
         onSkip: () => _onBordingCubit.navigateToLogin(context),
         showSkipButton: true,
-        skip: const Text("Skip"),
+        skip: const Text("Skip",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18.0)),
         next: const Icon(Icons.arrow_forward),
         done: const Text("Get Started",
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize:16)),
         dotsDecorator: _onBordingCubit.getDotsDecorator(),
       ),
     );

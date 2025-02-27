@@ -48,10 +48,10 @@ class AuthRemoteDataSource implements IAuthDataSource {
       Response response = await _dio.post(
         ApiEndpoints.signup,
         data: {
+          "image": user.image,
           "name": user.name,
           "email": user.email,
           "password": user.password,
-          "image": user.image,
         },
       );
       if (response.statusCode == 201) {
@@ -84,7 +84,9 @@ class AuthRemoteDataSource implements IAuthDataSource {
       );
 
       if (response.statusCode == 200) {
-        return response.data['data'];
+        // Extract the image name from the response
+        final str = response.data['data'];
+        return str;
       } else {
         throw Exception(response.statusMessage);
       }

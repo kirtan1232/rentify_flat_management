@@ -11,29 +11,38 @@ class OnBoardingScreenCubit extends Cubit<void> {
   List<PageViewModel> getPages(BuildContext context) {
     return [
       PageViewModel(
-        title: "Find Your Dream Flat\nEffortlessly",
+        title: "Find Your Dream Flat Effortlessly",
         body:
-            "Explore verified listings, connect with landlords,\nand rent your ideal flat with ease.",
+            "Explore verified listings, connect with landlords, and rent your ideal flat with ease.",
         image: Center(
-          child: Image.asset('assets/images/logo.png', height: 200),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: Image.asset('assets/images/logo.png', height: 170),
+          ),
         ),
         decoration: getPageDecoration(),
       ),
       PageViewModel(
         title: "Get Verified Listings",
         body:
-            "Access a wide range of verified listings\nwith accurate information to avoid hassle.",
+            "Access a wide range of verified listings with accurate information to avoid hassle.",
         image: Center(
-          child: Image.asset('assets/images/verify.png', height: 200),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: Image.asset('assets/images/verify.png', height: 170),
+          ),
         ),
         decoration: getPageDecoration(),
       ),
       PageViewModel(
         title: "Easy & Secure Transactions",
         body:
-            "Make payments securely and track your\ntransactions for a stress-free experience.",
+            "Make payments securely and track your transactions for a stress-free experience.",
         image: Center(
-          child: Image.asset('assets/images/payment.png', height: 200),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: Image.asset('assets/images/payment.png', height: 170),
+          ),
         ),
         decoration: getPageDecoration(),
       ),
@@ -43,23 +52,32 @@ class OnBoardingScreenCubit extends Cubit<void> {
   // Page decoration for all pages
   PageDecoration getPageDecoration() {
     return const PageDecoration(
-      titleTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      bodyTextStyle: TextStyle(fontSize: 16),
-      bodyPadding: EdgeInsets.all(16.0),
-      imagePadding: EdgeInsets.only(top: 40),
-      pageColor: Color(0xFF4CAF50), // Light green background
+      titleTextStyle: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+        height: 1.2, // Added line height for better spacing
+      ),
+      bodyTextStyle: TextStyle(
+        fontSize: 18,
+        color: Colors.white70,
+        height: 1.5, // Added line height for better spacing
+      ),
+      bodyPadding: EdgeInsets.all(20.0),
+      imagePadding: EdgeInsets.only(top: 30),
+      pageColor: Color(0xFF4CAF50),
     );
   }
 
   // Dots decorator for pagination
   DotsDecorator getDotsDecorator() {
     return DotsDecorator(
-      size: const Size(10, 10),
-      color: Colors.grey,
-      activeSize: const Size(22, 10),
+      size: const Size(12, 12),
+      color: Colors.white38,
+      activeSize: const Size(24, 12),
       activeShape:
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-      activeColor: Colors.blueAccent,
+      activeColor: Colors.white,
     );
   }
 
