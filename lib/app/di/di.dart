@@ -1,4 +1,3 @@
-// lib/app/di/di.dart
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rentify_flat_management/app/shared_prefs/token_shared_prefs.dart';
@@ -18,9 +17,13 @@ import 'package:rentify_flat_management/features/home/data/data_source/remote_da
 import 'package:rentify_flat_management/features/home/data/repository/room_repository_impl.dart';
 import 'package:rentify_flat_management/features/home/domain/repository/room_repository.dart';
 import 'package:rentify_flat_management/features/home/domain/usecase/add_to_wishlist_usecase.dart';
+import 'package:rentify_flat_management/features/home/domain/usecase/delete_user_usecase.dart';
 import 'package:rentify_flat_management/features/home/domain/usecase/get_all_room_usecase.dart';
 import 'package:rentify_flat_management/features/home/domain/usecase/get_wishlist.dart';
 import 'package:rentify_flat_management/features/home/domain/usecase/remove_from_wishlist_usecase.dart';
+import 'package:rentify_flat_management/features/home/domain/usecase/update_usecase.dart';
+import 'package:rentify_flat_management/features/home/presentation/view_model/delete_user/delete_user_bloc.dart';
+import 'package:rentify_flat_management/features/home/presentation/view_model/edit_profile/edit_profile_bloc.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/room/room_bloc.dart';
 import 'package:rentify_flat_management/features/on_boarding_screen/presentation/view_model/on_boarding_screen_cubit.dart';
@@ -90,10 +93,18 @@ _initLoginDependencies() async {
       () => TokenSharedPrefs(getIt<SharedPreferences>()));
   getIt.registerLazySingleton<LoginUseCase>(() =>
       LoginUseCase(getIt<AuthRemoteRepository>(), getIt<TokenSharedPrefs>()));
+  getIt.registerLazySingleton<UpdateUserUseCase>(
+      () => UpdateUserUseCase(getIt<AuthRemoteRepository>()));
+  getIt.registerLazySingleton<DeleteUserUseCase>(
+      () => DeleteUserUseCase(getIt<AuthRemoteRepository>())); // Corrected: one argument
   getIt.registerFactory<LoginBloc>(() => LoginBloc(
       signupBloc: getIt<SignupBloc>(),
       homeCubit: getIt<HomeCubit>(),
       loginUseCase: getIt<LoginUseCase>()));
+  getIt.registerFactory<EditProfileBloc>(
+      () => EditProfileBloc(updateUserUseCase: getIt<UpdateUserUseCase>()));
+  getIt.registerFactory<DeleteAccountBloc>(
+      () => DeleteAccountBloc(deleteUserUseCase: getIt<DeleteUserUseCase>()));
 }
 
 Future<void> _initRoomDependencies() async {
