@@ -1,30 +1,27 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:rentify_flat_management/app/di/di.dart';
+import 'package:rentify_flat_management/features/home/presentation/view_model/edit_profile/edit_profile_bloc.dart';
+import 'package:rentify_flat_management/features/home/presentation/view_model/edit_profile/edit_profile_event.dart';
+import 'package:rentify_flat_management/features/home/presentation/view_model/edit_profile/edit_profile_state.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
 
   @override
-  _EditProfileState createState() => _EditProfileState();
+  State<EditProfile> createState() => _EditProfileState();
 }
 
 class _EditProfileState extends State<EditProfile> {
-  final _formKey = GlobalKey<FormState>();
+  final ImagePicker _picker = ImagePicker();
+  File? _profileImage;
+  final _key = GlobalKey<FormState>();
+  static const String _baseUrl = 'http://192.168.101.11:3000'; // Replace with your backend URL
 
-  // Controllers for text fields
-  final _nameController = TextEditingController(text: 'Kirtan Shrestha');
-  final _emailController =
-      TextEditingController(text: 'shresthakirtan4@gmail.com');
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  // Image file variable
-  File? _img;
-
-  /// 1. Check camera permission
   Future<void> _checkCameraPermission() async {
     if (await Permission.camera.request().isRestricted ||
         await Permission.camera.request().isDenied) {
@@ -32,13 +29,12 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  /// 2. Pick image from camera or gallery
   Future<void> _browseImage(ImageSource source) async {
     try {
-      final image = await ImagePicker().pickImage(source: source);
+      final image = await _picker.pickImage(source: source);
       if (image != null) {
         setState(() {
-          _img = File(image.path);
+          _profileImage = File(image.path);
         });
       }
     } catch (e) {
@@ -46,14 +42,15 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  /// 3. Show bottom sheet to choose camera or gallery
   void _showImageSourceSelector(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.grey[300],
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
       ),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(20),
@@ -64,20 +61,18 @@ class _EditProfileState extends State<EditProfile> {
               onPressed: () async {
                 await _checkCameraPermission();
                 await _browseImage(ImageSource.camera);
-                if (!mounted) return;
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.camera),
-              label: const Text('Camera'),
+              icon: const Icon(Icons.camera, color: Colors.black),
+              label: const Text('Camera', style: TextStyle(color: Colors.black)),
             ),
             ElevatedButton.icon(
               onPressed: () async {
                 await _browseImage(ImageSource.gallery);
-                if (!mounted) return;
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.image),
-              label: const Text('Gallery'),
+              icon: const Icon(Icons.image, color: Colors.black),
+              label: const Text('Gallery', style: TextStyle(color: Colors.black)),
             ),
           ],
         ),
@@ -86,141 +81,196 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  /// Example method to handle form submission
-  void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implement your update logic (API call, BLoC event, etc.)
-      Navigator.pop(context); // Return to previous screen after saving
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Profile'),
-        elevation: 0,
-      ),
-      body: Center(
-        // Wrap the SingleChildScrollView with Center
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: ConstrainedBox(
-            // Add ConstrainedBox
-            constraints:
-                const BoxConstraints(maxWidth: 600), // Set maximum width
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // Profile photo picker
-                      InkWell(
-                        onTap: () => _showImageSourceSelector(context),
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.grey.shade200,
-                          backgroundImage: _img != null
-                              ? FileImage(_img!)
-                              : const AssetImage('assets/images/logo.png')
-                                  as ImageProvider,
-                          child: _img == null
-                              ? const Icon(Icons.camera_alt, size: 40)
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+    return BlocProvider(
+      create: (_) => getIt<EditProfileBloc>()..add(const LoadCurrentUserEvent()),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "Edit Profile",
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          elevation: 0,
+          backgroundColor: Theme.of(context).brightness == Brightness.light
+              ? Colors.green[400]
+              : Colors.grey[900],
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _key,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Profile Image Picker
+                    BlocBuilder<EditProfileBloc, EditProfileState>(
+                      builder: (context, state) {
+                        ImageProvider imageProvider;
+                        if (_profileImage != null) {
+                          imageProvider = FileImage(_profileImage!);
+                        } else if (state.currentUser?.image != null &&
+                            state.currentUser!.image!.isNotEmpty) {
+                          imageProvider = NetworkImage(
+                            '$_baseUrl/uploads/profile/${state.currentUser!.image}',
+                          );
+                        } else {
+                          imageProvider = const AssetImage('assets/images/profile.png');
+                        }
 
-                      // Name
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'Name'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Email
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(labelText: 'Email'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Password
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration:
-                            const InputDecoration(labelText: 'Password'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Confirm Password
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                            labelText: 'Confirm Password'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Save button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _onSave,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
+                        return InkWell(
+                          onTap: () => _showImageSourceSelector(context),
+                          child: SizedBox(
+                            height: 150,
+                            width: 150,
+                            child: CircleAvatar(
+                              backgroundImage: imageProvider,
+                              backgroundColor: Colors.grey[300],
+                              child: _profileImage == null && state.currentUser?.image == null
+                                  ? const Icon(Icons.camera_alt, size: 50, color: Colors.black)
+                                  : null,
+                            ),
                           ),
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    // Form Fields
+                    BlocConsumer<EditProfileBloc, EditProfileState>(
+                      listener: (context, state) {
+                        if (state.errorMessage != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(state.errorMessage!)),
+                          );
+                        }
+                        if (state.isUpdateSuccess) {
+                          setState(() {
+                            _profileImage = null; // Reset local image
+                          });
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state.isLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (state.currentUser == null) {
+                          return const Center(child: Text("Unable to load user data"));
+                        }
+
+                        final nameController = TextEditingController(text: state.currentUser!.name);
+                        final passwordController = TextEditingController();
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Email (Read-only)
+                            TextFormField(
+                              initialValue: state.currentUser!.email,
+                              decoration: InputDecoration(
+                                labelText: "Email",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                enabled: false,
+                                fillColor: Theme.of(context).brightness == Brightness.light
+                                    ? Colors.grey[100]
+                                    : Colors.grey[800],
+                                filled: true,
+                              ),
+                              style: GoogleFonts.poppins(fontSize: 16),
+                            ),
+                            const SizedBox(height: 16),
+                            // Name (Editable)
+                            TextFormField(
+                              controller: nameController,
+                              decoration: InputDecoration(
+                                labelText: "Name",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                fillColor: Theme.of(context).brightness == Brightness.light
+                                    ? Colors.grey[100]
+                                    : Colors.grey[800],
+                                filled: true,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Name cannot be empty";
+                                }
+                                return null;
+                              },
+                              style: GoogleFonts.poppins(fontSize: 16),
+                            ),
+                            const SizedBox(height: 16),
+                            // Password (Editable)
+                            TextFormField(
+                              controller: passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: "New Password (optional)",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                fillColor: Theme.of(context).brightness == Brightness.light
+                                    ? Colors.grey[100]
+                                    : Colors.grey[800],
+                                filled: true,
+                              ),
+                              style: GoogleFonts.poppins(fontSize: 16),
+                            ),
+                            const SizedBox(height: 32),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (_key.currentState!.validate()) {
+                                    context.read<EditProfileBloc>().add(
+                                          UpdateProfileEvent(
+                                            name: nameController.text,
+                                            password: passwordController.text,
+                                            context: context,
+                                            image: _profileImage,
+                                          ),
+                                        );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green[400],
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                child: Text(
+                                  "Update Profile",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
