@@ -13,6 +13,7 @@ import 'package:rentify_flat_management/features/auth/domain/use_case/signup_use
 import 'package:rentify_flat_management/features/auth/domain/use_case/uploadImage_usecase.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view_model/signup/signup_bloc.dart';
+import 'package:rentify_flat_management/features/home/data/data_source/local_data_source/room_local_data_source.dart'; // Add this import
 import 'package:rentify_flat_management/features/home/data/data_source/remote_data_source/room_remote_data_source.dart';
 import 'package:rentify_flat_management/features/home/data/repository/room_repository_impl.dart';
 import 'package:rentify_flat_management/features/home/domain/repository/room_repository.dart';
@@ -96,7 +97,7 @@ _initLoginDependencies() async {
   getIt.registerLazySingleton<UpdateUserUseCase>(
       () => UpdateUserUseCase(getIt<AuthRemoteRepository>()));
   getIt.registerLazySingleton<DeleteUserUseCase>(
-      () => DeleteUserUseCase(getIt<AuthRemoteRepository>())); // Corrected: one argument
+      () => DeleteUserUseCase(getIt<AuthRemoteRepository>()));
   getIt.registerFactory<LoginBloc>(() => LoginBloc(
       signupBloc: getIt<SignupBloc>(),
       homeCubit: getIt<HomeCubit>(),
@@ -110,8 +111,12 @@ _initLoginDependencies() async {
 Future<void> _initRoomDependencies() async {
   getIt.registerLazySingleton<RoomRemoteDataSource>(
       () => RoomRemoteDataSourceImpl(getIt<Dio>(), getIt<TokenSharedPrefs>()));
-  getIt.registerLazySingleton<RoomRepository>(
-      () => RoomRepositoryImpl(getIt<RoomRemoteDataSource>()));
+  getIt.registerLazySingleton<RoomLocalDataSource>(
+      () => RoomLocalDataSourceImpl(getIt<HiveService>()));
+  getIt.registerLazySingleton<RoomRepository>(() => RoomRepositoryImpl(
+        getIt<RoomRemoteDataSource>(),
+        getIt<RoomLocalDataSource>(),
+      ));
   getIt.registerLazySingleton<GetAllRoomsUseCase>(
       () => GetAllRoomsUseCase(getIt<RoomRepository>()));
   getIt.registerLazySingleton<AddToWishlistUseCase>(
