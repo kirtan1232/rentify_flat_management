@@ -10,11 +10,21 @@ class NotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if the current theme is dark or light
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return BlocProvider(
       create: (_) => getIt<RoomBloc>()..add(FetchRoomsEvent(context)),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Notifications'),
+          title: Text(
+            'Notifications',
+            style: TextStyle(
+              color: isDarkMode
+                  ? const Color(0xff00FF00)
+                  : Colors.white, // Only AppBar text color changes
+            ),
+          ),
           automaticallyImplyLeading: false,
           elevation: 0,
         ),
@@ -42,7 +52,8 @@ class NotificationsView extends StatelessWidget {
                       return Center(child: Text('Error: ${state.error}'));
                     }
                     if (state.rooms.isEmpty) {
-                      return const Center(child: Text('No new rooms available'));
+                      return const Center(
+                          child: Text('No new rooms available'));
                     }
                     return ListView.builder(
                       itemCount: state.rooms.length,
@@ -61,7 +72,9 @@ class NotificationsView extends StatelessWidget {
                                     width: 50,
                                     height: 50,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.home),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.home),
                                   )
                                 : const Icon(Icons.home),
                             title: Text(room.roomDescription),
