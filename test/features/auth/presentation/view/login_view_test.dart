@@ -1,126 +1,111 @@
-import 'package:dartz/dartz.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:rentify_flat_management/core/error/failure.dart';
-import 'package:rentify_flat_management/features/auth/domain/use_case/login_usecase.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:rentify_flat_management/app/di/di.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view/login_view.dart';
+import 'package:rentify_flat_management/features/auth/presentation/view/signup_view.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view_model/login/login_bloc.dart';
-import 'package:rentify_flat_management/features/auth/presentation/view_model/signup/signup_bloc.dart';
-import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
+import 'package:local_auth/local_auth.dart';
 
-class MockLoginUseCase extends Mock implements LoginUseCase {}
-
-class MockSignupBloc extends Mock implements SignupBloc {}
-
-class MockHomeCubit extends Mock implements HomeCubit {}
+// Mock classes
+@GenerateMocks([LoginBloc, LocalAuthentication, BuildContext])
+import 'login_view_test.mocks.dart';
 
 void main() {
-  late LoginBloc loginBloc;
-  late LoginUseCase loginUseCase;
-  late SignupBloc signupBloc;
-  late HomeCubit homeCubit;
-
-  // setUpAll(() {
-  //   registerFallbackValue(LoginParams(username: '', password: ''));
-  // });
+  late MockLoginBloc mockLoginBloc;
+  late MockLocalAuthentication mockLocalAuth;
+  late MockBuildContext mockContext;
+  late StreamController<LoginState> loginStateController;
 
   setUp(() {
-    loginUseCase = MockLoginUseCase();
-    signupBloc = MockSignupBloc();
-    homeCubit = MockHomeCubit();
-    loginBloc = LoginBloc(
-      signupBloc: signupBloc,
-      homeCubit: homeCubit,
-      loginUseCase: loginUseCase,
-    );
-// Add this
-    // registerFallbackValue(const LoginParams.empty());
-  });
+    mockLoginBloc = MockLoginBloc();
+    mockLocalAuth = MockLocalAuthentication();
+    mockContext = MockBuildContext();
 
-  test('initial state should be LoginState.initial()', () {
-    expect(loginBloc.state, equals(const LoginState.initial()));
-    expect(loginBloc.state.isLoading, false);
-    expect(loginBloc.state.isSuccess, false);
-  });
+    // Ensure GetIt is reset and mockLoginBloc is registered before any widget is built
+    getIt.reset();
+    getIt.registerLazySingleton<LoginBloc>(() => mockLoginBloc);
 
-  testWidgets('Check for the email and password in the view', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: BlocProvider(
-        create: (context) => loginBloc,
-        child: LoginScreenView(),
-      ),
+    // Stream controller for LoginBloc
+    loginStateController = StreamController<LoginState>.broadcast();
+    when(mockLoginBloc.stream).thenAnswer((_) => loginStateController.stream);
+    // Adjust this based on your actual LoginState constructor
+    when(mockLoginBloc.state).thenReturn(const LoginState(
+      isLoading: false,
+      isSuccess: false,
     ));
 
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField).at(0), 'kirtan');
-    await tester.enterText(find.byType(TextField).at(1), '1234');
-
-    expect(find.text('kirtan'), findsOneWidget);
-    expect(find.text('1234'), findsOneWidget);
+    // Mock LocalAuthentication behavior
+    when(mockLocalAuth.canCheckBiometrics).thenAnswer((_) async => true);
+    when(mockLocalAuth.isDeviceSupported()).thenAnswer((_) async => true);
+    when(mockLocalAuth.authenticate(
+      localizedReason: anyNamed('localizedReason'),
+      options: anyNamed('options'),
+    )).thenAnswer((_) async => true);
   });
 
-  // Check for the validator error
-  testWidgets('Check for the validator error', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: BlocProvider(
-        create: (context) => loginBloc,
-        child: LoginScreenView(),
-      ),
-    ));
-
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextField).at(0), '');
-    await tester.enterText(find.byType(TextField).at(1), '');
-
-    // await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
-    await tester.tap(find.byType(ElevatedButton).at(0));
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Please enter email'), findsOneWidget);
-    expect(find.text('Please enter password'), findsOneWidget);
+  tearDown(() {
+    loginStateController.close();
+    getIt.reset();
   });
 
-  // Check for the login button click
-  // Before running this test, comment the Navigator.pushReplacement in the LoginBloc
-  testWidgets('Check for the login button click', (tester) async {
-    const correctEmail = 'kirtan';
-    const correctPassword = '1234';
-
-    when(() => loginUseCase(any())).thenAnswer((invocation) async {
-      // As you are using LoginParams, you have to use registerFallbackValue(LoginParams.empty());
-      final params = invocation.positionalArguments[0] as LoginParams;
-      if (params.email == correctEmail && params.password == correctPassword) {
-        return const Right('token');
-      } else {
-        return const Left(ApiFailure(message: 'Invalid Credentials'));
-      }
-    });
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BlocProvider(
-          create: (context) => loginBloc,
-          child: LoginScreenView(),
-        ),
-      ),
+  // Helper to build the widget, ensuring GetIt is ready
+  Widget buildTestWidget() {
+    // Double-check GetIt registration before building
+    if (!getIt.isRegistered<LoginBloc>()) {
+      getIt.registerLazySingleton<LoginBloc>(() => mockLoginBloc);
+    }
+    return MaterialApp(
+      home: LoginScreenView(),
     );
+  }
 
+  testWidgets('LoginScreenView renders initial UI correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget());
     await tester.pumpAndSettle();
 
-    // Enter valid credentials
-    await tester.enterText(find.byType(TextField).at(0), correctEmail);
-    await tester.enterText(find.byType(TextField).at(1), correctPassword);
-
-    // Tap login
-    await tester.tap(find.byType(ElevatedButton).first);
-
-    await tester.pumpAndSettle();
-
-    expect(loginBloc.state.isSuccess, true);
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(find.text('Login to your account'), findsOneWidget);
+    expect(find.byType(TextFormField), findsNWidgets(2)); // Email and Password
+    expect(find.text('Login'), findsOneWidget);
+    expect(find.text("Don't have an account? Sign Up"), findsOneWidget);
+    expect(find.text('Login with Fingerprint'), findsOneWidget);
   });
+
+  testWidgets('LoginScreenView triggers LoginUserEvent on login button tap',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, 'test@example.com');
+    await tester.enterText(find.byType(TextFormField).last, 'password123');
+    await tester.tap(find.text('Login'));
+    await tester.pump();
+
+    verify(mockLoginBloc.add(argThat(isA<LoginUserEvent>()
+            .having((e) => e.email, 'email', 'test@example.com')
+            .having((e) => e.password, 'password', 'password123')
+            .having((e) => e.context, 'context', isA<BuildContext>()))))
+        .called(1);
+  });
+
+  testWidgets('LoginScreenView navigates to SignUp on sign-up button tap',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text("Don't have an account? Sign Up"));
+    await tester.pump();
+
+    verify(mockLoginBloc.add(argThat(isA<NavigateRegisterScreenEvent>()
+            .having((e) => e.destination, 'destination', isA<SignupScreenView>())
+            .having((e) => e.context, 'context', isA<BuildContext>()))))
+        .called(1);
+  });
+
+
 }
