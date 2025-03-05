@@ -47,4 +47,16 @@ class AuthLocalRepository implements IAuthRepository {
   Future<Either<Failure, String>> uploadProfilePicture(File file) async {
     throw UnimplementedError();
   }
+  
+  @override
+  Future<Either<Failure, AuthEntity>> updateUser(String? name, String? password, File? image) {
+    // TODO: implement updateUser
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Either<Failure, void>> deleteUser(String password) {
+    // TODO: implement deleteUser
+    throw UnimplementedError();
+  }
 }
