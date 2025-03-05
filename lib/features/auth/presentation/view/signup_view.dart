@@ -1,4 +1,3 @@
-// lib/features/auth/presentation/view/signup_view.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -26,6 +25,8 @@ class _SignupScreenViewState extends State<SignupScreenView> {
   final _confirmPasswordController = TextEditingController();
 
   File? _img; // Variable to hold selected image
+  bool _obscurePassword = true; // To toggle password visibility
+  bool _obscureConfirmPassword = true; // To toggle confirm password visibility
 
   // Check camera permission
   Future<void> _checkCameraPermission() async {
@@ -72,16 +73,16 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                 await _browseImage(ImageSource.camera);
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.camera, color: Colors.black), // Changed to black
-              label: const Text('Camera', style: TextStyle(color: Colors.black)), // Changed to black
+              icon: const Icon(Icons.camera, color: Colors.black),
+              label: const Text('Camera', style: TextStyle(color: Colors.black)),
             ),
             ElevatedButton.icon(
               onPressed: () async {
                 await _browseImage(ImageSource.gallery);
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.image, color: Colors.black), // Changed to black
-              label: const Text('Gallery', style: TextStyle(color: Colors.black)), // Changed to black
+              icon: const Icon(Icons.image, color: Colors.black),
+              label: const Text('Gallery', style: TextStyle(color: Colors.black)),
             ),
           ],
         ),
@@ -137,7 +138,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                                 ? FileImage(_img!)
                                 : const AssetImage('assets/images/logo.png') as ImageProvider,
                             child: _img == null
-                                ? const Icon(Icons.camera_alt, size: 50, color: Colors.black) // Changed to black
+                                ? const Icon(Icons.camera_alt, size: 50, color: Colors.black)
                                 : null,
                           ),
                         ),
@@ -149,9 +150,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         controller: _nameController,
                         decoration: const InputDecoration(
                           labelText: 'Full Name',
-                          labelStyle: TextStyle(color: Colors.black), // Force black
+                          labelStyle: TextStyle(color: Colors.black),
                         ),
-                        style: const TextStyle(color: Colors.black), // Force black text
+                        style: const TextStyle(color: Colors.black),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your full name';
@@ -166,9 +167,9 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         controller: _emailController,
                         decoration: const InputDecoration(
                           labelText: 'Email',
-                          labelStyle: TextStyle(color: Colors.black), // Force black
+                          labelStyle: TextStyle(color: Colors.black),
                         ),
-                        style: const TextStyle(color: Colors.black), // Force black text
+                        style: const TextStyle(color: Colors.black),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -181,12 +182,23 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                       // Password Field
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
+                        obscureText: _obscurePassword,
+                        decoration: InputDecoration(
                           labelText: 'Password',
-                          labelStyle: TextStyle(color: Colors.black), // Force black
+                          labelStyle: const TextStyle(color: Colors.black),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
                         ),
-                        style: const TextStyle(color: Colors.black), // Force black text
+                        style: const TextStyle(color: Colors.black),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
@@ -199,12 +211,23 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                       // Confirm Password Field
                       TextFormField(
                         controller: _confirmPasswordController,
-                        obscureText: true,
-                        decoration: const InputDecoration(
+                        obscureText: _obscureConfirmPassword,
+                        decoration: InputDecoration(
                           labelText: 'Confirm Password',
-                          labelStyle: TextStyle(color: Colors.black), // Force black
+                          labelStyle: const TextStyle(color: Colors.black),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
                         ),
-                        style: const TextStyle(color: Colors.black), // Force black text
+                        style: const TextStyle(color: Colors.black),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please confirm your password';
@@ -247,7 +270,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                             "Sign Up",
                             style: TextStyle(
                               fontSize: 18,
-                              color: Colors.black, // Changed to black
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -259,7 +282,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                         children: [
                           const Text(
                             "Already have an account? ",
-                            style: TextStyle(color: Colors.black), // Changed to black
+                            style: TextStyle(color: Colors.black),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -278,7 +301,7 @@ class _SignupScreenViewState extends State<SignupScreenView> {
                             child: const Text(
                               "Login now",
                               style: TextStyle(
-                                color: Colors.black, // Changed to black
+                                color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
