@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rentify_flat_management/app/constants/api_endpoints.dart';
 import 'package:rentify_flat_management/app/di/di.dart';
+import 'package:rentify_flat_management/features/home/domain/entity/room_entity.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/room_detail_view.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/room/room_bloc.dart';
 
 class FlatsView extends StatefulWidget {
@@ -29,12 +32,29 @@ class _FlatsViewState extends State<FlatsView> {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if the current theme is dark or light
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return BlocProvider(
       create: (_) => getIt<RoomBloc>(),
       child: Builder(
         builder: (blocContext) {
           BlocProvider.of<RoomBloc>(blocContext).add(FetchRoomsEvent(blocContext));
           return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                'Flats View',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? const Color(0xff00FF00) : Colors.white, // Dynamic AppBar text color
+                ),
+              ),
+              automaticallyImplyLeading: false,
+              elevation: 0,
+              backgroundColor: Theme.of(context).brightness == Brightness.light
+                  ? const Color.fromARGB(255, 77, 187, 117)
+                  : Colors.black, // Dark mode color
+            ),
             body: BlocBuilder<RoomBloc, RoomState>(
               builder: (context, state) {
                 if (state.isLoading) {
@@ -92,6 +112,7 @@ class _FlatsViewState extends State<FlatsView> {
                               : '';
                           return _buildFlatCard(
                             context: context,
+                            room: room,
                             title: room.roomDescription,
                             price: 'Rs.${room.rentPrice}/month',
                             description: '${room.roomDescription} at ${room.address}',
@@ -118,6 +139,7 @@ class _FlatsViewState extends State<FlatsView> {
 
   Widget _buildFlatCard({
     required BuildContext context,
+    required RoomEntity room,
     required String title,
     required String price,
     required String description,
@@ -130,72 +152,82 @@ class _FlatsViewState extends State<FlatsView> {
     required bool isWishlisted,
   }) {
     print('Image URL: $imageUrl');
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: imageUrl.isNotEmpty
-                  ? Center(
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: 200,
-                        errorBuilder: (context, error, stackTrace) {
-                          print('Image load error: $error');
-                          return const Icon(Icons.broken_image, size: 100);
-                        },
-                      ),
-                    )
-                  : const Icon(Icons.image, size: 100),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RoomDetailView(room: room),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: imageUrl.isNotEmpty
+                    ? Center(
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: 200,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Image load error: $error');
+                            return const Icon(Icons.broken_image, size: 100);
+                          },
+                        ),
+                      )
+                    : const Icon(Icons.image, size: 100),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    isWishlisted ? Icons.favorite : Icons.favorite_border,
-                    color: isWishlisted ? Colors.red : null,
+                  IconButton(
+                    icon: Icon(
+                      isWishlisted ? Icons.favorite : Icons.favorite_border,
+                      color: isWishlisted ? Colors.red : null,
+                    ),
+                    onPressed: () {
+                      if (isWishlisted) {
+                        context.read<RoomBloc>().add(RemoveFromWishlistEvent(roomId, context));
+                      } else {
+                        context.read<RoomBloc>().add(AddToWishlistEvent(roomId, context));
+                      }
+                    },
                   ),
-                  onPressed: () {
-                    if (isWishlisted) {
-                      context.read<RoomBloc>().add(RemoveFromWishlistEvent(roomId, context));
-                    } else {
-                      context.read<RoomBloc>().add(AddToWishlistEvent(roomId, context));
-                    }
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(price),
-            const SizedBox(height: 8),
-            Text(description),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildInfoTile(icon: Icons.bed, label: rooms),
-                _buildInfoTile(icon: Icons.shower, label: bathrooms),
-                _buildInfoTile(icon: Icons.kitchen, label: kitchen),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(furniture),
-          ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(price),
+              const SizedBox(height: 8),
+              Text(description),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildInfoTile(icon: Icons.bed, label: rooms),
+                  _buildInfoTile(icon: Icons.shower, label: bathrooms),
+                  _buildInfoTile(icon: Icons.kitchen, label: kitchen),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(furniture),
+            ],
+          ),
         ),
       ),
     );
