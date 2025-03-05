@@ -32,7 +32,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         skip: const Text("Skip",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18.0)),
         next: const Icon(Icons.arrow_forward),
         done: const Text("Get Started",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize:16)),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize:14)),
         dotsDecorator: _onBordingCubit.getDotsDecorator(),
       ),
     );
