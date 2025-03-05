@@ -1,92 +1,86 @@
-// import 'package:dartz/dartz.dart';
-// import 'package:flutter_test/flutter_test.dart';
-// import 'package:mocktail/mocktail.dart';
-// import 'package:vitalflow/core/error/failure.dart';
-// import 'package:vitalflow/features/auth/domain/entity/auth_entity.dart';
-// import 'package:vitalflow/features/auth/domain/repository/auth_repoitory.dart';
-// import 'package:vitalflow/features/auth/domain/use_case/signup_usecase.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:rentify_flat_management/app/di/di.dart';
+import 'package:rentify_flat_management/features/auth/presentation/view/signup_view.dart';
+import 'package:rentify_flat_management/features/auth/presentation/view_model/signup/signup_bloc.dart';
 
-// // Mock the IAuthRepoitory
-// class MockAuthRepository extends Mock implements IAuthRepoitory {}
+// Mock classes
+@GenerateMocks([SignupBloc])
+import 'signup_view_test.mocks.dart';
 
-// void main() {
-//   late SignupUsecase useCase;
-//   late MockAuthRepository mockRepository;
+void main() {
+  late MockSignupBloc mockSignupBloc;
 
-//   setUp(() {
-//     mockRepository = MockAuthRepository();
-//     useCase = SignupUsecase(mockRepository);
-//   });
+  setUp(() {
+    mockSignupBloc = MockSignupBloc();
 
-//   // Test case for successful signup
-//   test('should call signupUser with correct AuthEntity and return void',
-//       () async {
-//     // Arrange
-//     const params = SignupUserParams(
-//       name: 'John Doe',
-//       email: 'john.doe@example.com',
-//       password: 'password123',
-//       image: 'profile.jpg',
-//     );
+    // Reset GetIt and register the mock SignupBloc
+    getIt.reset();
+    getIt.registerLazySingleton<SignupBloc>(() => mockSignupBloc);
 
-//     const authEntity = AuthEntity(
-//       name: 'John Doe',
-//       email: 'john.doe@example.com',
-//       password: 'password123',
-//       image: 'profile.jpg',
-//     );
+    // Mock minimal SignupBloc behavior with real SignupState
+    when(mockSignupBloc.stream).thenAnswer((_) => Stream.value(
+        SignupState(imageName: '', isLoading: false, isSuccess: false)));
+    when(mockSignupBloc.state).thenReturn(
+        SignupState(imageName: '', isLoading: false, isSuccess: false));
+  });
 
-//     // Mock the repository to return Right(null) for successful signup
-//     when(() => mockRepository.signupUser(authEntity))
-//         .thenAnswer((_) async => const Right(null));
+  tearDown(() {
+    getIt.reset();
+  });
 
-//     // Act
-//     final result = await useCase(params);
+  // Helper to build the widget
+  Widget buildTestWidget() {
+    return const MaterialApp(
+      home: SignupScreenView(),
+    );
+  }
 
-//     // Assert
-//     expect(result, const Right(null)); // Verify that the result is Right(null)
-//     verify(() => mockRepository.signupUser(authEntity)).called(
-//         1); // Verify that signupUser was called with the correct AuthEntity
-//     verifyNoMoreInteractions(
-//         mockRepository); // Ensure no other interactions with the repository
-//   });
+  testWidgets('SignupScreenView renders initial UI correctly',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
 
-//   // Test case for signup failure
-//   test('should return a Failure when signupUser fails', () async {
-//     // Arrange
-//     const params = SignupUserParams(
-//       name: 'John Doe',
-//       email: 'john.doe@example.com',
-//       password: 'password123',
-//       image: 'profile.jpg',
-//     );
+    expect(find.byType(CircleAvatar), findsOneWidget);
+    expect(find.text('Sign Up'), findsOneWidget);
+    expect(find.text('Already have an account? '), findsOneWidget);
+    expect(find.text('Login now'), findsOneWidget);
+  });
 
-//     const authEntity = AuthEntity(
-//       name: 'John Doe',
-//       email: 'john.doe@example.com',
-//       password: 'password123',
-//       image: 'profile.jpg',
-//     );
+  testWidgets('SignupScreenView has correct text fields and labels',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
 
-//     const failure = ApiFailure (message: 'Signup failed');
+    expect(find.widgetWithText(TextFormField, 'Full Name'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Password'), findsOneWidget);
+    expect(
+        find.widgetWithText(TextFormField, 'Confirm Password'), findsOneWidget);
+  });
+  testWidgets('SignupScreenView Sign Up button is enabled',
+    (WidgetTester tester) async {
+  await tester.pumpWidget(buildTestWidget());
+  await tester.pumpAndSettle();
 
-//     // Mock the repository to return Left(Failure) for failed signup
-//     when(() => mockRepository.signupUser(authEntity))
-//         .thenAnswer((_) async => const Left(failure));
+  final signUpButton = find.widgetWithText(ElevatedButton, 'Sign Up');
+  expect(tester.widget<ElevatedButton>(signUpButton).enabled, isTrue);
+});
 
-//     // Act
-//     final result = await useCase(params);
+testWidgets('SignupScreenView CircleAvatar tap opens bottom sheet',
+    (WidgetTester tester) async {
+  await tester.pumpWidget(buildTestWidget());
+  await tester.pumpAndSettle();
 
-//     // Assert
-//     expect(
-//         result, const Left(failure)); // Verify that the result is Left(Failure)
-//     verify(() => mockRepository.signupUser(authEntity)).called(
-//         1); // Verify that signupUser was called with the correct AuthEntity
-//     verifyNoMoreInteractions(
-//         mockRepository); // Ensure no other interactions with the repository
-//   });
+  // Tap the CircleAvatar
+  await tester.tap(find.byType(CircleAvatar));
+  await tester.pumpAndSettle();
 
-//   tearDown(() {
-//     reset(mockRepository); // Reset the mock after each test
-//   });
-// }
+  // Verify that the bottom sheet is displayed
+  expect(find.text('Camera'), findsOneWidget);
+  expect(find.text('Gallery'), findsOneWidget);
+});
+
+}
