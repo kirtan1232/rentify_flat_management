@@ -39,95 +39,135 @@ class _FlatsViewState extends State<FlatsView> {
       create: (_) => getIt<RoomBloc>(),
       child: Builder(
         builder: (blocContext) {
-          BlocProvider.of<RoomBloc>(blocContext).add(FetchRoomsEvent(blocContext));
+          final roomBloc = BlocProvider.of<RoomBloc>(blocContext);
+          if (roomBloc != null) {
+            roomBloc.add(FetchRoomsEvent(blocContext));
+          } else {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Flats View',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? const Color(0xff00FF00) : Colors.white,
+                  ),
+                ),
+                automaticallyImplyLeading: false,
+                elevation: 0,
+                backgroundColor: Theme.of(context).brightness == Brightness.light
+                    ? const Color.fromARGB(255, 77, 187, 117)
+                    : Colors.black,
+              ),
+              body: const Center(
+                child: Text('Error: RoomBloc is not available'),
+              ),
+            );
+          }
+
           return Scaffold(
             appBar: AppBar(
               title: Text(
                 'Flats View',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isDarkMode ? const Color(0xff00FF00) : Colors.white, // Dynamic AppBar text color
+                  color: isDarkMode ? const Color(0xff00FF00) : Colors.white,
                 ),
               ),
               automaticallyImplyLeading: false,
               elevation: 0,
               backgroundColor: Theme.of(context).brightness == Brightness.light
                   ? const Color.fromARGB(255, 77, 187, 117)
-                  : Colors.black, // Dark mode color
+                  : Colors.black,
             ),
-            body: BlocBuilder<RoomBloc, RoomState>(
-              builder: (context, state) {
-                if (state.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state.error != null) {
-                  return Center(child: Text('Error: ${state.error}'));
-                }
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                // Determine if it's a tablet (e.g., width > 600)
+                bool isTablet = constraints.maxWidth > 600;
 
-                // Filter rooms only based on the submitted _searchQuery
-                final filteredRooms = state.rooms.where((room) {
-                  return _searchQuery.isEmpty ||
-                      room.address.toLowerCase().contains(_searchQuery.toLowerCase());
-                }).toList();
+                return BlocBuilder<RoomBloc, RoomState>(
+                  builder: (context, state) {
+                    if (state.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state.error != null) {
+                      return Center(child: Text('Error: ${state.error}'));
+                    }
 
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.light
-                                ? Colors.grey[200]
-                                : Colors.grey[800],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Theme.of(context).dividerColor),
+                    // Filter rooms only based on the submitted _searchQuery
+                    final filteredRooms = state.rooms.where((room) {
+                      return _searchQuery.isEmpty ||
+                          room.address.toLowerCase().contains(_searchQuery.toLowerCase());
+                    }).toList();
+
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: isTablet ? 800 : double.infinity),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isTablet ? 40.0 : 16.0,
+                            vertical: 16.0,
                           ),
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: const InputDecoration(
-                              hintText: 'Search for flats by address...',
-                              border: InputBorder.none,
-                              icon: Icon(Icons.search),
-                            ),
-                            onSubmitted: (value) {
-                              // Update _searchQuery only when Enter is pressed
-                              setState(() {
-                                _searchQuery = value;
-                              });
-                            },
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).brightness == Brightness.light
+                                        ? Colors.grey[200]
+                                        : Colors.grey[800],
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Theme.of(context).dividerColor),
+                                  ),
+                                  child: TextField(
+                                    controller: _searchController,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Search for flats by address...',
+                                      border: InputBorder.none,
+                                      icon: Icon(Icons.search),
+                                    ),
+                                    onSubmitted: (value) {
+                                      // Update _searchQuery only when Enter is pressed
+                                      setState(() {
+                                        _searchQuery = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.all(16),
+                                itemCount: filteredRooms.length,
+                                itemBuilder: (context, index) {
+                                  final room = filteredRooms[index];
+                                  final imageUrl = room.roomImage != null
+                                      ? '${ApiEndpoints.imageUrl}${room.roomImage!.split(RegExp(r'[\\/]')).last}'
+                                      : '';
+                                  return _buildFlatCard(
+                                    context: context,
+                                    room: room,
+                                    title: room.roomDescription,
+                                    price: 'Rs.${room.rentPrice}/month',
+                                    description: '${room.roomDescription} at ${room.address}',
+                                    rooms: '${room.floor} Floor',
+                                    furniture: room.parking ?? 'Not specified',
+                                    bathrooms: room.bathroom.toString(),
+                                    kitchen: '1',
+                                    imageUrl: imageUrl,
+                                    roomId: room.id!,
+                                    isWishlisted: room.isWishlisted ?? false,
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredRooms.length,
-                        itemBuilder: (context, index) {
-                          final room = filteredRooms[index];
-                          final imageUrl = room.roomImage != null
-                              ? '${ApiEndpoints.imageUrl}${room.roomImage!.split(RegExp(r'[\\/]')).last}'
-                              : '';
-                          return _buildFlatCard(
-                            context: context,
-                            room: room,
-                            title: room.roomDescription,
-                            price: 'Rs.${room.rentPrice}/month',
-                            description: '${room.roomDescription} at ${room.address}',
-                            rooms: '${room.floor} Floor',
-                            furniture: room.parking,
-                            bathrooms: room.bathroom.toString(),
-                            kitchen: '1',
-                            imageUrl: imageUrl,
-                            roomId: room.id!,
-                            isWishlisted: room.isWishlisted,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             ),
@@ -202,10 +242,17 @@ class _FlatsViewState extends State<FlatsView> {
                       color: isWishlisted ? Colors.red : null,
                     ),
                     onPressed: () {
-                      if (isWishlisted) {
-                        context.read<RoomBloc>().add(RemoveFromWishlistEvent(roomId, context));
+                      final roomBloc = context.read<RoomBloc>();
+                      if (roomBloc != null) {
+                        if (isWishlisted) {
+                          roomBloc.add(RemoveFromWishlistEvent(roomId, context));
+                        } else {
+                          roomBloc.add(AddToWishlistEvent(roomId, context));
+                        }
                       } else {
-                        context.read<RoomBloc>().add(AddToWishlistEvent(roomId, context));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('RoomBloc is not available')),
+                        );
                       }
                     },
                   ),
