@@ -21,12 +21,20 @@ class SettingView extends StatefulWidget {
 class _SettingViewState extends State<SettingView> {
   Future<void> _logout(BuildContext context) async {
     final tokenSharedPrefs = getIt<TokenSharedPrefs>();
-    await tokenSharedPrefs.saveToken(''); // Clear the token
-    print('Token cleared, navigating to LoginScreenView');
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => LoginScreenView()),
-      (route) => false, // Remove all previous routes
-    );
+    if (tokenSharedPrefs != null) {
+      await tokenSharedPrefs.saveToken(''); // Clear the token
+      print('Token cleared, navigating to LoginScreenView');
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) =>  LoginScreenView()),
+        (route) => false, // Remove all previous routes
+      );
+    } else {
+      showMySnackBar(
+        context: context,
+        message: 'TokenSharedPrefs is not available',
+        color: Colors.red,
+      );
+    }
   }
 
   @override
@@ -39,131 +47,159 @@ class _SettingViewState extends State<SettingView> {
         title: Text(
           'Settings',
           style: TextStyle(
-            color: isDarkMode
-                ? const Color(0xff00FF00)
-                : Colors.white, // Dynamic AppBar text color
+            color: isDarkMode ? const Color(0xff00FF00) : Colors.white, // Dynamic AppBar text color
           ),
         ),
         automaticallyImplyLeading: false,
         elevation: 0,
+        backgroundColor: Theme.of(context).brightness == Brightness.light
+            ? const Color.fromARGB(255, 77, 187, 117)
+            : Colors.black, // Dark mode color
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Determine if it's a tablet (e.g., width > 600)
+          bool isTablet = constraints.maxWidth > 600;
+
+          return ListView(
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 40.0 : 16.0,
+              vertical: 16.0,
             ),
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _SectionHeader(title: 'GENERAL'),
-                _buildListTile(
-                  Icons.person,
-                  'Edit Profile',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const EditProfile(),
-                      ),
-                    );
-                  },
+            children: [
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                _buildListTile(Icons.notifications, 'Notifications', () {
-                  context.read<HomeCubit>().onTabTapped(3);
-                }),
-                BlocBuilder<ThemeCubit, bool>(
-                  builder: (context, isDarkMode) {
-                    return SwitchListTile(
-                      title: const Text('Dark Mode'),
-                      secondary: const Icon(Icons.dark_mode),
-                      value: isDarkMode,
-                      onChanged: (value) {
-                        context.read<ThemeCubit>().toggleTheme(value);
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _SectionHeader(title: 'GENERAL'),
+                    _buildListTile(
+                      Icons.person,
+                      'Edit Profile',
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfile(),
+                          ),
+                        );
                       },
-                    );
-                  },
+                    ),
+                    _buildListTile(Icons.notifications, 'Notifications', () {
+                      final homeCubit = context.read<HomeCubit>();
+                      if (homeCubit != null) {
+                        homeCubit.onTabTapped(3);
+                      } else {
+                        showMySnackBar(
+                          context: context,
+                          message: 'HomeCubit is not available',
+                          color: Colors.red,
+                        );
+                      }
+                    }),
+                    BlocBuilder<ThemeCubit, bool>(
+                      builder: (context, isDarkMode) {
+                        return SwitchListTile(
+                          title: const Text('Dark Mode'),
+                          secondary: const Icon(Icons.dark_mode),
+                          value: isDarkMode,
+                          onChanged: (value) {
+                            final themeCubit = context.read<ThemeCubit>();
+                            if (themeCubit != null) {
+                              themeCubit.toggleTheme(value);
+                            } else {
+                              showMySnackBar(
+                                context: context,
+                                message: 'ThemeCubit is not available',
+                                color: Colors.red,
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _SectionHeader(title: 'FEEDBACK'),
-                _buildListTile(Icons.bug_report, 'Report a bug', () {
-                  _showBugReportDialog(context);
-                }),
-                _buildListTile(Icons.send, 'Send feedback', () {
-                  _showFeedbackDialog(context);
-                }),
-              ],
-            ),
-          ),
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _SectionHeader(title: 'Account Settings'),
-                _buildListTile(Icons.question_answer, 'FAQ', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const FAQView()),
-                  );
-                }),
-                _buildListTile(Icons.lock, 'Privacy & Policy', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const PrivacyPolicyView()),
-                  );
-                }),
-                _buildListTile(Icons.delete, 'Delete account', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DeleteAccountView()),
-                  );
-                }),
-                _buildListTile(
-                  Icons.logout,
-                  'Logout',
-                  () {
-                    showMySnackBar(
-                      context: context,
-                      message: 'Logging out...',
-                      color: Colors.red,
-                    );
-                    _logout(context); // Call logout directly
-                  },
+              ),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
-            ),
-          ),
-        ],
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _SectionHeader(title: 'FEEDBACK'),
+                    _buildListTile(Icons.bug_report, 'Report a bug', () {
+                      _showBugReportDialog(context);
+                    }),
+                    _buildListTile(Icons.send, 'Send feedback', () {
+                      _showFeedbackDialog(context);
+                    }),
+                  ],
+                ),
+              ),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const _SectionHeader(title: 'Account Settings'),
+                    _buildListTile(Icons.question_answer, 'FAQ', () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const FAQView()),
+                      );
+                    }),
+                    _buildListTile(Icons.lock, 'Privacy & Policy', () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PrivacyPolicyView()),
+                      );
+                    }),
+                    _buildListTile(Icons.delete, 'Delete account', () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const DeleteAccountView()),
+                      );
+                    }),
+                    _buildListTile(
+                      Icons.logout,
+                      'Logout',
+                      () {
+                        showMySnackBar(
+                          context: context,
+                          message: 'Logging out...',
+                          color: Colors.red,
+                        );
+                        _logout(context); // Call logout directly
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
   Widget _buildListTile(IconData icon, String title, VoidCallback onTap) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      leading: Icon(icon, color: isDarkMode ? Colors.white : Colors.black),
+      title: Text(title, style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       onTap: onTap,
     );
   }
@@ -294,12 +330,14 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
+          color: isDarkMode ? Colors.white : Colors.black,
         ),
       ),
     );
@@ -313,7 +351,7 @@ void showMySnackBar({
 }) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
+      content: Text(message, style: const TextStyle(color: Colors.white)),
       backgroundColor: color,
       duration: const Duration(seconds: 1),
     ),
