@@ -2,20 +2,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rentify_flat_management/app/constants/hive_table_constants.dart';
 import 'package:rentify_flat_management/features/auth/data/model/auth_hive_model.dart';
+import 'package:rentify_flat_management/features/home/data/model/room_hive_model.dart';
 
 class HiveService {
   static Future<void> init() async {
-    // Initialize the database
     var directory = await getApplicationDocumentsDirectory();
     var path = '${directory.path}rentify.db';
-
     Hive.init(path);
 
-    // Register Adapter
     Hive.registerAdapter(AuthHiveModelAdapter());
+    Hive.registerAdapter(RoomHiveModelAdapter());
   }
 
-  // Auth Queries
+  // Auth Queries (unchanged)
   Future<void> register(AuthHiveModel auth) async {
     var box = await Hive.openBox<AuthHiveModel>(HiveTableConstant.userBox);
     await box.put(auth.userId, auth);
@@ -31,15 +30,7 @@ class HiveService {
     return box.values.toList();
   }
 
-  // Login using username and password
   Future<AuthHiveModel?> login(String email, String password) async {
-    // var box = await Hive.openBox<AuthHiveModel>(HiveTableConstant.studentBox);
-    // var auth = box.values.firstWhere(
-    //     (element) =>
-    //         element.username == username && element.password == password,
-    //     orElse: () => AuthHiveModel.initial());
-    // return auth;
-
     var box = await Hive.openBox<AuthHiveModel>(HiveTableConstant.userBox);
     var student = box.values.firstWhere(
         (element) => element.email == email && element.password == password);
@@ -51,12 +42,29 @@ class HiveService {
     await Hive.deleteBoxFromDisk(HiveTableConstant.userBox);
   }
 
-  // Clear Student Box
   Future<void> clearStudentBox() async {
     await Hive.deleteBoxFromDisk(HiveTableConstant.userBox);
   }
 
   Future<void> close() async {
     await Hive.close();
+  }
+
+  // Room Queries (simplified for RoomLocalDataSource)
+  Future<void> saveRooms(List<RoomHiveModel> rooms) async {
+    var box = await Hive.openBox<RoomHiveModel>(HiveTableConstant.roomBox);
+    await box.clear();
+    for (var room in rooms) {
+      await box.put(room.id, room);
+    }
+  }
+
+  Future<List<RoomHiveModel>> getAllRooms() async {
+    var box = await Hive.openBox<RoomHiveModel>(HiveTableConstant.roomBox);
+    return box.values.toList();
+  }
+
+  Future<void> clearRooms() async {
+    await Hive.deleteBoxFromDisk(HiveTableConstant.roomBox);
   }
 }
