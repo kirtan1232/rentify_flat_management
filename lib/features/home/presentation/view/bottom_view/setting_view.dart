@@ -5,7 +5,10 @@ import 'package:rentify_flat_management/app/shared_prefs/token_shared_prefs.dart
 import 'package:rentify_flat_management/core/app_theme/theme_cubit.dart';
 import 'package:rentify_flat_management/core/utils/email_sender.dart';
 import 'package:rentify_flat_management/features/auth/presentation/view/login_view.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/delete_account.dart';
 import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/edit_profile.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/faq_view.dart';
+import 'package:rentify_flat_management/features/home/presentation/view/bottom_view/privacypolicy_view.dart';
 import 'package:rentify_flat_management/features/home/presentation/view_model/home_cubit.dart';
 
 class SettingView extends StatefulWidget {
@@ -28,9 +31,19 @@ class _SettingViewState extends State<SettingView> {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if the current theme is dark or light
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(
+          'Settings',
+          style: TextStyle(
+            color: isDarkMode
+                ? const Color(0xff00FF00)
+                : Colors.white, // Dynamic AppBar text color
+          ),
+        ),
         automaticallyImplyLeading: false,
         elevation: 0,
       ),
@@ -106,7 +119,26 @@ class _SettingViewState extends State<SettingView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _SectionHeader(title: 'Account Settings'),
-                _buildListTile(Icons.delete, 'Delete account', () {}),
+                _buildListTile(Icons.question_answer, 'FAQ', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FAQView()),
+                  );
+                }),
+                _buildListTile(Icons.lock, 'Privacy & Policy', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PrivacyPolicyView()),
+                  );
+                }),
+                _buildListTile(Icons.delete, 'Delete account', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DeleteAccountView()),
+                  );
+                }),
                 _buildListTile(
                   Icons.logout,
                   'Logout',
