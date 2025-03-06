@@ -1,5 +1,3 @@
-#rentify_flat_management
-##Overview
 Rentify is a mobile application designed to simplify the process of renting flats. It aims to streamline the rental experience for users of all levels, from first-time renters to property manager. Ideal for tenants seeking flats, landlords managing listings, and individuals interested in real estate technology.
 
 ## Features
