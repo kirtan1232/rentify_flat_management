@@ -1,4 +1,8 @@
-# rentify_flat_management
+rentify_flat_management
+![Screenshot_1741248225](https://github.com/user-attachments/assets/dcac3515-75e9-454d-9b0a-1fa57430b367)# 
+![Screenshot_1741248227](https://github.com/user-attachments/assets/014fd1bc-2c4c-4c2d-8303-3e75f5e594af)
+
+
 ![Screenshot_1741082502](https://github.com/user-attachments/assets/b59d8bee-1321-4aec-a46b-901595043dbb)
 ![Screenshot_1741082515](https://github.com/user-attachments/assets/5a907aa8-ffc8-4f9c-a986-172738fa1099)
 ![Screenshot_1741082532](https://github.com/user-attachments/assets/69ae432a-4f56-41dd-9575-6d050af08e65)
